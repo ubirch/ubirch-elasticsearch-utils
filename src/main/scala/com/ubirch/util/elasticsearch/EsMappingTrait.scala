@@ -35,12 +35,14 @@ trait EsMappingTrait extends StrictLogging {
     */
   val indexesAndMappings: Map[String, String]
 
+  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+
   lazy final val indicesToDelete: Set[String] = indexesAndMappings.keys.toSet
 
   /**
     * Method to create all indexes and their mappings if not yet existing.
     */
-  final def createElasticsearchMappings()(implicit esClient: RestHighLevelClient): Unit =
+  final def createElasticsearchMappings(): Unit =
     indexesAndMappings foreach {
       case (index, indexMapping) => create(index, indexMapping)
     }
@@ -48,8 +50,7 @@ trait EsMappingTrait extends StrictLogging {
   /**
     * Method that creates an index with it's mapping, if it doesn't exist yet.
     */
-  private def create(index: String, mapping: String)
-                    (implicit esClient: RestHighLevelClient): Unit = {
+  private def create(index: String, mapping: String): Unit = {
 
     val request = new GetIndexRequest(index)
 
@@ -82,7 +83,7 @@ trait EsMappingTrait extends StrictLogging {
     * * delete indexes
     * * create mappings
     */
-  final def cleanElasticsearch()(implicit esClient: RestHighLevelClient): Unit = {
+  final def cleanElasticsearch(): Unit = {
 
     deleteIndices()
     Thread.sleep(200)
@@ -95,7 +96,7 @@ trait EsMappingTrait extends StrictLogging {
   /**
     * Delete all indexes.
     */
-  final def deleteIndices()(implicit esClient: RestHighLevelClient): Unit = {
+  final def deleteIndices(): Unit = {
 
     for (index <- indicesToDelete) {
 

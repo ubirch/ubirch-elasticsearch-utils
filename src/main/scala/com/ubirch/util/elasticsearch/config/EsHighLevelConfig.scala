@@ -1,11 +1,8 @@
 package com.ubirch.util.elasticsearch.config
 
-import java.util.Map.Entry
-
-import com.typesafe.config.{ConfigObject, ConfigValue}
 import com.ubirch.util.config.ConfigBase
 
-import scala.collection.JavaConverters._
+import scala.util.Try
 
 object EsHighLevelConfig extends ConfigBase {
 
@@ -17,33 +14,11 @@ object EsHighLevelConfig extends ConfigBase {
   val host: String = config.getString(EsHighLevelConfigKeys.HOST)
   val port: Int = config.getInt(EsHighLevelConfigKeys.PORT)
   val scheme: String = config.getString(EsHighLevelConfigKeys.SCHEME)
-
-
-  def xPackEnabled: Boolean = {
-    if (config.hasPath(EsHighLevelConfigKeys.X_PACK_ENABLED)) {
-      config.getBoolean(EsHighLevelConfigKeys.X_PACK_ENABLED)
-    } else {
-      false
-    }
-  }
-
-  def settings: Map[String, String] = {
-
-    // code found at: http://deploymentzone.com/2013/07/25/typesafe-config-and-maps-in-scala/
-    val objects: Iterable[ConfigObject] = config.getObjectList(EsHighLevelConfigKeys.SETTINGS).asScala
-
-    val settingsIterable = for {
-
-      item: ConfigObject <- objects
-      entry: Entry[String, ConfigValue] <- item.entrySet().asScala
-      key = entry.getKey
-      value = entry.getValue.unwrapped().toString
-
-    } yield (key, value)
-
-    settingsIterable.toMap
-
-  }
+  val user: String = Try(config.getString(EsHighLevelConfigKeys.USER)).getOrElse("")
+  val password: String = Try(config.getString(EsHighLevelConfigKeys.PASSWORD)).getOrElse("")
+  val connectionTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_TIMEOUT)).getOrElse(-1)
+  val socketTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.SOCKET_TIMEOUT)).getOrElse(-1)
+  val retryTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.RETRY_TIMEOUT)).getOrElse(-1)
 
   /*
    * bulk

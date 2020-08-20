@@ -25,7 +25,7 @@ class EsBulkClientSpec extends AsyncFeatureSpec with EsMappingTrait
   feature("simple CRUD tests") {
 
     scenario("store 2000 documents and check if average is good") {
-      cleanElasticsearch
+      cleanElasticsearch()
       listOfDocs.foreach { testDoc =>
 
         val jval = Json4sUtil.any2jvalue(testDoc).get

@@ -12,22 +12,25 @@ class ESConfigSpec extends FeatureSpec with Matchers {
       EsHighLevelConfig.host shouldBe "localhost"
       EsHighLevelConfig.port shouldBe 9200
       EsHighLevelConfig.scheme shouldBe "http"
+      EsHighLevelConfig.user shouldBe ""
+      EsHighLevelConfig.password shouldBe ""
+      EsHighLevelConfig.connectionTimeout shouldBe -1
+      EsHighLevelConfig.socketTimeout shouldBe -1
+      EsHighLevelConfig.retryTimeout shouldBe -1
     }
-
   }
 
-  feature("settings()") {
+  feature("bulk()") {
 
-    scenario("read settings") {
-
-      // test
-      val settings = EsHighLevelConfig.settings
+    scenario("read bulk settings from config") {
 
       // verify
-      settings("cluster.name") shouldBe "my-test-cluster"
-
+      EsHighLevelConfig.bulkActions shouldBe 10000
+      EsHighLevelConfig.bulkSize shouldBe 1
+      EsHighLevelConfig.flushInterval shouldBe 1
+      EsHighLevelConfig.concurrentRequests shouldBe 2
     }
-
   }
+
 
 }

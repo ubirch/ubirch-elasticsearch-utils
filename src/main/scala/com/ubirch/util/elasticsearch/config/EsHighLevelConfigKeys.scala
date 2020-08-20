@@ -13,10 +13,12 @@ object EsHighLevelConfigKeys {
   val HOST = s"$connectionPrefix.host"
   val PORT = s"$connectionPrefix.port"
   val SCHEME = s"$connectionPrefix.scheme"
+  val USER = s"$connectionPrefix.user"
+  val PASSWORD = s"$connectionPrefix.password"
+  val CONNECTION_TIMEOUT = s"$connectionPrefix.connectionTimeout"
+  val SOCKET_TIMEOUT = s"$connectionPrefix.socketTimeout"
+  val RETRY_TIMEOUT = s"$connectionPrefix.retryTimeout"
 
-  val X_PACK_ENABLED = s"$connectionPrefix.xpackEnabled"
-
-  val SETTINGS = s"$connectionPrefix.settings"
 
   /*
    * bulk

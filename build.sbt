@@ -9,7 +9,7 @@ concurrentRestrictions in Global := Seq(
 
 name := "ubirch-elasticsearch-utils"
 description := "Elasticsearch client using the High Level Java Client"
-version := "0.1.0"
+version := "0.1.1"
 organization := "com.ubirch.util"
 homepage := Some(url("http://ubirch.com"))
 scalaVersion := "2.11.12"
