@@ -91,7 +91,6 @@ trait EsSimpleClientBase extends StrictLogging {
   def getDoc(docIndex: String,
              docId: String): Future[Option[JValue]] = {
 
-
     val search = new SearchSourceBuilder().query(QueryBuilders.idsQuery.addIds(docId))
     val request = new SearchRequest(docIndex).source(search)
 
@@ -138,7 +137,6 @@ trait EsSimpleClientBase extends StrictLogging {
               sort: Option[SortBuilder[_]] = None
              ): Future[List[JValue]] = {
 
-
     val search = new SearchSourceBuilder()
     if (query.isDefined) search.query(query.get)
     if (from.isDefined) search.from(from.get)
@@ -163,7 +161,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
   }.recover {
     case ex: Throwable =>
-      logger.error(s"ES error: index=$docIndex", ex)
+      logger.error(s"ES error: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
       List()
   }
 

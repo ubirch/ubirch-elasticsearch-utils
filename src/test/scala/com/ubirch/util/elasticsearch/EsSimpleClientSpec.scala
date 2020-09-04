@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.json.{Json4sUtil, JsonFormats}
 import com.ubirch.util.uuid.UUIDUtil
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.aggregations.AggregationBuilders
 import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder
 import org.json4s._
@@ -107,8 +108,18 @@ class EsSimpleClientSpec extends AsyncFeatureSpec with EsMappingTrait
       }
     }
 
-    scenario("getDocs") {
+    scenario("getDocs with id") {
       Thread.sleep(1000)
+
+      val query = Some(QueryBuilders.termQuery("id", testDoc2Updated.id))
+      EsSimpleClient.getDocs(docIndex, query = query).map {
+        case jvals: List[JValue] =>
+          jvals.size shouldBe 1
+        case _ => fail("could not read stored document")
+      }
+    }
+
+    scenario("getDocs") {
       EsSimpleClient.getDocs(docIndex).map {
         case jvals: List[JValue] =>
           jvals.size shouldBe 2
