@@ -23,6 +23,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
 object EsSimpleClient extends EsSimpleClientBase
+
 /**
   * This is an abstraction for the elasticsearch Higher Level Client
   */
@@ -48,6 +49,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param doc      document as a JValue which should be stored
     * @return Boolean indicating success
     */
+    @throws[Throwable]
   def storeDoc(docIndex: String,
                doc: JValue,
                docIdOpt: Option[String] = None
@@ -78,7 +80,7 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recover {
     case ex: Throwable =>
       logger.error(s"ES error, storing of document $doc failed  ", ex)
-      false
+      throw ex
   }
 
 
@@ -88,6 +90,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param docIndex name of the ElasticSearch index
     * @param docId    unique Id per Document
     */
+  @throws[Throwable]
   def getDoc(docIndex: String,
              docId: String): Future[Option[JValue]] = {
 
@@ -116,7 +119,7 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recover {
     case ex: Throwable =>
       logger.error(s"Es error: retrieving document with id $docId from index=$docIndex", ex)
-      None
+      throw ex
   }
 
 
@@ -130,6 +133,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param sort     optional result sort
     * @return
     */
+  @throws[Throwable]
   def getDocs(docIndex: String,
               query: Option[QueryBuilder] = None,
               from: Option[Int] = None,
@@ -162,7 +166,7 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recover {
     case ex: Throwable =>
       logger.error(s"ES error: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
-      List()
+      throw ex
   }
 
 
@@ -174,6 +178,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param avgAgg   average function
     * @return Option[Double]
     */
+  @throws[Throwable]
   def getAverage(docIndex: String,
                  query: Option[QueryBuilder] = None,
                  avgAgg: AvgAggregationBuilder
@@ -207,7 +212,7 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recover {
     case ex: Throwable =>
       logger.error(s"Es error: retrieving average from index=$docIndex", ex)
-      None
+      throw ex
   }
 
   /**
@@ -217,6 +222,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param docId    unique id
     * @return
     */
+  @throws[Throwable]
   def deleteDoc(docIndex: String, docId: String): Future[Boolean] = {
 
     val request = new DeleteRequest(docIndex, docId)
@@ -235,7 +241,7 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recover {
     case ex: Throwable =>
       logger.error(s"ES error when deleting document $docId from index $docIndex ", ex)
-      false
+      throw ex
   }
 
   /**
