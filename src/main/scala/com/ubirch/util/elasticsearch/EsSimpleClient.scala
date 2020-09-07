@@ -79,7 +79,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
   }.recover {
     case ex: Throwable =>
-      logger.error(s"ES error, storing of document $doc failed  ", ex)
+      logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed  ", ex)
       throw ex
   }
 
@@ -118,7 +118,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
   }.recover {
     case ex: Throwable =>
-      logger.error(s"Es error: retrieving document with id $docId from index=$docIndex", ex)
+      logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed", ex)
       throw ex
   }
 
@@ -165,7 +165,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
   }.recover {
     case ex: Throwable =>
-      logger.error(s"ES error: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
+      logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
       throw ex
   }
 
@@ -211,7 +211,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
   }.recover {
     case ex: Throwable =>
-      logger.error(s"Es error: retrieving average from index=$docIndex", ex)
+      logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg", ex)
       throw ex
   }
 
@@ -240,7 +240,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
   }.recover {
     case ex: Throwable =>
-      logger.error(s"ES error when deleting document $docId from index $docIndex ", ex)
+      logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId", ex)
       throw ex
   }
 
@@ -257,7 +257,7 @@ trait EsSimpleClientBase extends StrictLogging {
       .recover {
 
         case t: Throwable =>
-          logger.error("ES error, deepcheck failing", t)
+          logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex", t)
           DeepCheckResponse(
             status = false,
             messages = Seq(t.getMessage)

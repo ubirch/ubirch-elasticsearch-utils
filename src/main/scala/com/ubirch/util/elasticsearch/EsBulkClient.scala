@@ -89,7 +89,7 @@ trait EsBulkClientBase extends StrictLogging {
       true
     } catch {
       case ex: Throwable =>
-        logger.debug(s"storing document in elasticsearch bulkProcessor failed for $doc with id $docId ", ex)
+        logger.debug(s"ES error - storeDocBulk(): docIndex=$docIndex docId=$docId doc=$doc ", ex)
         false
     }
   }
