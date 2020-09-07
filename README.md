@@ -20,7 +20,7 @@ esHighLevelClient {
     password = ${ELASTIC_IO_PASSWORD} #optional else no authentication
     connectionTimeout = ${CONNECTION_TIMEOUT} #optional else default value 
     socketTimeout = ${SOCKET_TIMEOUT} #optional else default value
-    retryTimeout = ${RETRY_TIMEOUT} #optional else default value
+    connectionRequestTimeout = ${CONNECTION_REQUEST_TIMEOUT} #optional else default value
   }
   bulk {
     bulkActions = ${ES_CLIENT_BULK_ACTIONS}

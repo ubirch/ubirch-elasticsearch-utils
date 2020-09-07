@@ -16,7 +16,7 @@ class ESConfigSpec extends FeatureSpec with Matchers {
       EsHighLevelConfig.password shouldBe ""
       EsHighLevelConfig.connectionTimeout shouldBe -1
       EsHighLevelConfig.socketTimeout shouldBe -1
-      EsHighLevelConfig.retryTimeout shouldBe -1
+      EsHighLevelConfig.connectionRequestTimeout shouldBe -1
     }
   }
 

@@ -17,7 +17,7 @@ trait EsHighLevelClient {
   private val password = EsHighLevelConfig.password
   private val connectionTimeout = EsHighLevelConfig.connectionTimeout
   private val socketTimeout = EsHighLevelConfig.socketTimeout
-  private val retryTimeout = EsHighLevelConfig.retryTimeout
+  private val connectionRequestTimeout = EsHighLevelConfig.connectionRequestTimeout
 
   private val credentialsProvider = new BasicCredentialsProvider()
   credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password))
@@ -29,7 +29,7 @@ trait EsHighLevelClient {
         requestConfigBuilder
           .setConnectTimeout(connectionTimeout)
           .setSocketTimeout(socketTimeout)
-          .setConnectionRequestTimeout(retryTimeout)
+          .setConnectionRequestTimeout(connectionRequestTimeout)
     })
 
   if (user != "" && password != "")
