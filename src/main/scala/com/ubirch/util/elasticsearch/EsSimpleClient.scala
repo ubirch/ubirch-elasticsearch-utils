@@ -1,12 +1,15 @@
 package com.ubirch.util.elasticsearch
 
 import java.io.IOException
+import java.net.{ConnectException, SocketTimeoutException}
 
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.deepCheck.model.DeepCheckResponse
 import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
 import com.ubirch.util.json.{Json4sUtil, JsonFormats}
 import com.ubirch.util.uuid.UUIDUtil
+import monix.execution.FutureUtils
+import monix.execution.Scheduler.Implicits.global
 import org.elasticsearch.action.DocWriteResponse.Result
 import org.elasticsearch.action.delete.{DeleteRequest, DeleteResponse}
 import org.elasticsearch.action.index.{IndexRequest, IndexResponse}
@@ -20,8 +23,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.search.sort.SortBuilder
 import org.json4s.{Formats, JValue}
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future, Promise}
-
 
 object EsSimpleClient extends EsSimpleClientBase
 
@@ -35,6 +38,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
   private val esClient: RestHighLevelClient = EsHighLevelClient.client
   private val maxRetries: Int = EsHighLevelConfig.maxRetries
+  private val retryDelay: Int = EsHighLevelConfig.retryDelayFactor
 
   /**
     * returns current ElasticSearch Transport Client instance
@@ -55,7 +59,7 @@ trait EsSimpleClientBase extends StrictLogging {
   def storeDoc(docIndex: String,
                doc: JValue,
                docIdOpt: Option[String] = None,
-               retries: Int = 0): Future[Boolean] = {
+               retry: Int = 0): Future[Boolean] = {
 
     val docId = docIdOpt.getOrElse(UUIDUtil.uuidStr)
 
@@ -82,16 +86,21 @@ trait EsSimpleClientBase extends StrictLogging {
       case _ => throw new Exception(s"JValue parsing to string of ($doc) failed ")
 
     }
-
   }.recoverWith {
-    case ex: Throwable =>
-      if (retries < maxRetries) {
-        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; will try again  ", ex)
-        storeDoc(docIndex, doc, docIdOpt, retries + 1)
+    case ex: IOException | ConnectException | SocketTimeoutException =>
+      if (retry < maxRetries) {
+        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; will try again #${retry + 1}", ex)
+        FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+          storeDoc(docIndex, doc, docIdOpt, retry + 1)
+        }.flatMap(future => future)
       } else {
-        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed, no retry ($retries/$maxRetries)  ", ex)
-        Future.failed(throw ex)
+        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed, no retry ($retry/$maxRetries)  ", ex)
+        Future.failed(ex)
       }
+
+    case ex: Throwable =>
+      logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; won't try again, due to unknown error type", ex)
+      Future.failed(ex)
   }
 
 
@@ -104,7 +113,7 @@ trait EsSimpleClientBase extends StrictLogging {
   @throws[Throwable]
   def getDoc(docIndex: String,
              docId: String,
-             retries: Int = 0): Future[Option[JValue]] = {
+             retry: Int = 0): Future[Option[JValue]] = {
 
     val search = new SearchSourceBuilder().query(QueryBuilders.idsQuery.addIds(docId))
     val request = new SearchRequest(docIndex).source(search)
@@ -129,14 +138,20 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex: Throwable =>
-      if (retries < maxRetries) {
-        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; will try again  ", ex)
-        getDoc(docIndex, docId, retries + 1)
+    case ex: IOException | ConnectException | SocketTimeoutException =>
+      if (retry < maxRetries) {
+        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; will try again #${retry + 1}", ex)
+        FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+          getDoc(docIndex, docId, retry + 1)
+        }.flatMap(future => future)
       } else {
-        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed, no retry ($retries/$maxRetries)  ", ex)
-        Future.failed(throw ex)
+        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed, no retry ($retry/$maxRetries)  ", ex)
+        Future.failed(ex)
       }
+
+    case ex: Throwable =>
+      logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; won't try again, due to unknown error type", ex)
+      Future.failed(ex)
   }
 
 
@@ -156,7 +171,7 @@ trait EsSimpleClientBase extends StrictLogging {
               from: Option[Int] = None,
               size: Option[Int] = None,
               sort: Option[SortBuilder[_]] = None,
-              retries: Int = 0): Future[List[JValue]] = {
+              retry: Int = 0): Future[List[JValue]] = {
 
     val search = new SearchSourceBuilder()
     if (query.isDefined) search.query(query.get)
@@ -180,14 +195,20 @@ trait EsSimpleClientBase extends StrictLogging {
         List()
     }
   }.recoverWith {
-    case ex: Throwable =>
-      if (retries < maxRetries) {
-        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; will try again  ", ex)
-        getDocs(docIndex, query, from, size, sort, retries + 1)
+    case ex: IOException | ConnectException | SocketTimeoutException =>
+      if (retry < maxRetries) {
+        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; will try again #${retry + 1}", ex)
+        FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+          getDocs(docIndex, query, from, size, sort, retry + 1)
+        }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed, no retry ($retries/$maxRetries)  ", ex)
-        Future.failed(throw ex)
+        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed, no retry ($retry/$maxRetries)  ", ex)
+        Future.failed(ex)
       }
+
+    case ex: Throwable =>
+      logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; won't try again, due to unknown error type", ex)
+      Future.failed(ex)
   }
 
 
@@ -203,7 +224,7 @@ trait EsSimpleClientBase extends StrictLogging {
   def getAverage(docIndex: String,
                  query: Option[QueryBuilder] = None,
                  avgAgg: AvgAggregationBuilder,
-                 retries: Int = 0): Future[Option[Double]] = {
+                 retry: Int = 0): Future[Option[Double]] = {
 
     val search = new SearchSourceBuilder().aggregation(avgAgg)
     if (query.isDefined) search.query(query.get)
@@ -229,16 +250,21 @@ trait EsSimpleClientBase extends StrictLogging {
       case _ =>
         None
     }
-
   }.recoverWith {
-    case ex: Throwable =>
-      if (retries < maxRetries) {
-        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; will try again  ", ex)
-        getAverage(docIndex, query, avgAgg, retries + 1)
+    case ex: IOException | ConnectException | SocketTimeoutException =>
+      if (retry < maxRetries) {
+        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; will try again #${retry + 1}", ex)
+        FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+          getAverage(docIndex, query, avgAgg, retry + 1)
+        }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed, no retry ($retries/$maxRetries)  ", ex)
-        Future.failed(throw ex)
+        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed, no retry ($retry/$maxRetries)  ", ex)
+        Future.failed(ex)
       }
+
+    case ex: Throwable =>
+      logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; won't try again, due to unknown error type ", ex)
+      Future.failed(ex)
   }
 
   /**
@@ -249,7 +275,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @return
     */
   @throws[Throwable]
-  def deleteDoc(docIndex: String, docId: String, retries: Int = 0): Future[Boolean] = {
+  def deleteDoc(docIndex: String, docId: String, retry: Int = 0): Future[Boolean] = {
 
     val request = new DeleteRequest(docIndex, docId)
 
@@ -265,14 +291,20 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex: Throwable =>
-      if (retries < maxRetries) {
-        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; will try again  ", ex)
-        deleteDoc(docIndex, docId, retries + 1)
+    case ex: IOException | ConnectException | SocketTimeoutException =>
+      if (retry < maxRetries) {
+        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; will try again #${retry + 1}", ex)
+        FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+          deleteDoc(docIndex, docId, retry + 1)
+        }.flatMap(future => future)
       } else {
-        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed, no retry ($retries/$maxRetries)  ", ex)
-        Future.failed(throw ex)
+        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed, no retry ($retry/$maxRetries)  ", ex)
+        Future.failed(ex)
       }
+
+    case ex: Throwable =>
+      logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; won't try again, due to unknown error type", ex)
+      Future.failed(ex)
   }
 
   /**
@@ -281,23 +313,28 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param docIndex index to query
     * @return result of connectivity check
     */
-  def connectivityCheck(docIndex: String = "foo", retries: Int = 0): Future[DeepCheckResponse] =
+  def connectivityCheck(docIndex: String = "foo", retry: Int = 0): Future[DeepCheckResponse] =
 
     getDocs(docIndex = docIndex, size = Some(1))
       .map(_ => DeepCheckResponse())
       .recoverWith {
-        case ex: Throwable =>
-          if (retries < maxRetries) {
-            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; will try again  ", ex)
-            connectivityCheck(docIndex, retries + 1)
+        case ex: IOException | ConnectException | SocketTimeoutException =>
+          if (retry < maxRetries) {
+            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; will try again #${retry + 1}", ex)
+            FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
+              connectivityCheck(docIndex, retry + 1)
+            }.flatMap(future => future)
           } else {
-            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed, no retry ($retries/$maxRetries)  ", ex)
+            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed, no retry ($retry/$maxRetries)  ", ex)
             Future.successful(DeepCheckResponse(
               status = false,
               messages = Seq(ex.getMessage)
             ))
           }
 
+        case ex: Throwable =>
+          logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; won't try again, due to unknown error type", ex)
+          Future.failed(ex)
       }
 
 
