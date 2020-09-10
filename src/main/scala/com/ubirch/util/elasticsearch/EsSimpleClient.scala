@@ -129,11 +129,11 @@ trait EsSimpleClientBase extends StrictLogging {
         }.filter(_.isDefined).map(_.get.extract[JValue]).headOption
 
       case response if response.getHits.getTotalHits.value > 0 =>
-        logger.error(s"ES confusion, found more than one document for the id: $docId")
+        logger.warn(s"ES confusion, found more than one document for the id: $docId")
         None
 
       case response =>
-        logger.error(s"no document was found for the id: $docId with response $response")
+        logger.info(s"no document was found for the id: $docId with response $response")
         None
 
     }
