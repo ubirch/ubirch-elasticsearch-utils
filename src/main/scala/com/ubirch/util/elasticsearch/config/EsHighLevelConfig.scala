@@ -16,6 +16,7 @@ object EsHighLevelConfig extends ConfigBase {
   val scheme: String = config.getString(EsHighLevelConfigKeys.SCHEME)
   val user: String = Try(config.getString(EsHighLevelConfigKeys.USER)).getOrElse("")
   val password: String = Try(config.getString(EsHighLevelConfigKeys.PASSWORD)).getOrElse("")
+  val maxRetries: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_TIMEOUT)).getOrElse(0)
   val connectionTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_TIMEOUT)).getOrElse(-1)
   val socketTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.SOCKET_TIMEOUT)).getOrElse(-1)
   val connectionRequestTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_REQUEST_TIMEOUT)).getOrElse(-1)
