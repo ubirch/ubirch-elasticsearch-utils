@@ -41,11 +41,26 @@ trait EsBulkClientBase extends StrictLogging {
     @Override
     def afterBulk(executionId: Long, request: BulkRequest, response: BulkResponse): Unit = {
       logger.debug(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}) => ${response.getTook}")
+      if (response.hasFailures)
+        logger.error(s"afterBulk($executionId, some requests of the bulk request failed: ${response.buildFailureMessage}")
     }
 
     @Override
     def afterBulk(executionId: Long, request: BulkRequest, failure: Throwable): Unit = {
-      logger.error(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()})", failure)
+      logger.error(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}, trying it once more)", failure)
+
+      esClient.bulkAsync(request, RequestOptions.DEFAULT, new ActionListener[BulkResponse]() {
+
+        @Override
+        def onResponse(response: BulkResponse): Unit = {
+          logger.debug(s"afterBulk; second Trial worked out $response, but has failures: ${response.hasFailures}")
+        }
+
+        @Override
+        def onFailure(e: Exception): Unit = {
+          logger.error(s"after Bulk, second trial failed for request ($request) as well", e)
+        }
+      })
     }
 
   }

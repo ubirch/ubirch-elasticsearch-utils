@@ -15,6 +15,8 @@ object EsHighLevelConfigKeys {
   val SCHEME = s"$connectionPrefix.scheme"
   val USER = s"$connectionPrefix.user"
   val PASSWORD = s"$connectionPrefix.password"
+  val MAX_RETRIES = s"$connectionPrefix.maxRetries"
+  val RETRY_DELAY_FACTOR = s"$connectionPrefix.retry_delay_factor"
   val CONNECTION_TIMEOUT = s"$connectionPrefix.connectionTimeout"
   val SOCKET_TIMEOUT = s"$connectionPrefix.socketTimeout"
   val CONNECTION_REQUEST_TIMEOUT = s"$connectionPrefix.connectionRequestTimeout"
