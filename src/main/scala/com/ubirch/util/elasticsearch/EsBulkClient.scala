@@ -49,7 +49,7 @@ trait EsBulkClientBase extends StrictLogging {
     def afterBulk(executionId: Long, request: BulkRequest, failure: Throwable): Unit = {
       logger.error(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}, trying it once more)", failure)
 
-      esClient.bulkAsync(request, RequestOptions.DEFAULT, new ActionListener[BulkResponse]() {
+      bulkAsyncAsJava.accept(request, new ActionListener[BulkResponse]() {
 
         @Override
         def onResponse(response: BulkResponse): Unit = {
@@ -113,6 +113,8 @@ trait EsBulkClientBase extends StrictLogging {
     bulkProcessor.close()
     bulkProcessor.awaitClose(30L, TimeUnit.SECONDS)
   }
+
+  sys.addShutdownHook(closeConnection())
 
 
 }
