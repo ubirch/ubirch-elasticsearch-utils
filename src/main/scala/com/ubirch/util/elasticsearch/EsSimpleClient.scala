@@ -87,7 +87,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex: IOException | ConnectException | SocketTimeoutException =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
         logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; will try again #${retry + 1}", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -138,7 +138,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex: IOException | ConnectException | SocketTimeoutException =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
         logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; will try again #${retry + 1}", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -195,7 +195,7 @@ trait EsSimpleClientBase extends StrictLogging {
         List()
     }
   }.recoverWith {
-    case ex: IOException | ConnectException | SocketTimeoutException =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
         logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; will try again #${retry + 1}", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -251,7 +251,7 @@ trait EsSimpleClientBase extends StrictLogging {
         None
     }
   }.recoverWith {
-    case ex: IOException | ConnectException | SocketTimeoutException =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
         logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; will try again #${retry + 1}", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -291,7 +291,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex: IOException | ConnectException | SocketTimeoutException =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
         logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; will try again #${retry + 1}", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -318,7 +318,7 @@ trait EsSimpleClientBase extends StrictLogging {
     getDocs(docIndex = docIndex, size = Some(1))
       .map(_ => DeepCheckResponse())
       .recoverWith {
-        case ex: IOException | ConnectException | SocketTimeoutException =>
+        case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
           if (retry < maxRetries) {
             logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; will try again #${retry + 1}", ex)
             FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
