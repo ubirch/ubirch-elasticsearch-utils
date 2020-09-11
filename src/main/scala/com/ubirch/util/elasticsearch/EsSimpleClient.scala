@@ -94,7 +94,7 @@ trait EsSimpleClientBase extends StrictLogging {
           storeDoc(docIndex, doc, docIdOpt, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed, no retry ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed, no (more) retries ($retry/$maxRetries)  ", ex)
         Future.failed(ex)
       }
 
@@ -145,7 +145,7 @@ trait EsSimpleClientBase extends StrictLogging {
           getDoc(docIndex, docId, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed, no retry ($retry/$maxRetries)  ", ex)
+        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed,  no (more) retries ($retry/$maxRetries)  ", ex)
         Future.failed(ex)
       }
 
@@ -202,7 +202,7 @@ trait EsSimpleClientBase extends StrictLogging {
           getDocs(docIndex, query, from, size, sort, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed, no retry ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed,  no (more) retries ($retry/$maxRetries)  ", ex)
         Future.failed(ex)
       }
 
@@ -258,7 +258,7 @@ trait EsSimpleClientBase extends StrictLogging {
           getAverage(docIndex, query, avgAgg, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed, no retry ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed,  no (more) retries ($retry/$maxRetries)  ", ex)
         Future.failed(ex)
       }
 
@@ -298,7 +298,7 @@ trait EsSimpleClientBase extends StrictLogging {
           deleteDoc(docIndex, docId, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed, no retry ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed,  no (more) retries ($retry/$maxRetries)  ", ex)
         Future.failed(ex)
       }
 
@@ -325,7 +325,7 @@ trait EsSimpleClientBase extends StrictLogging {
               connectivityCheck(docIndex, retry + 1)
             }.flatMap(future => future)
           } else {
-            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed, no retry ($retry/$maxRetries)  ", ex)
+            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed,  no (more) retries ($retry/$maxRetries)  ", ex)
             Future.successful(DeepCheckResponse(
               status = false,
               messages = Seq(ex.getMessage)
