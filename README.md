@@ -10,6 +10,10 @@ tests as usual.
 
 # config
 
+The 'retry delay factor' is the number of seconds which will become multiplied with
+the number of executed retries to define the actual delay before a retry is started. 
+ 
+
 ```
 esHighLevelClient {
   connection {
@@ -18,6 +22,8 @@ esHighLevelClient {
     scheme = ${ES_SCHEME}
     user = ${ELASTIC_IO_USER} #optional else no authentication
     password = ${ELASTIC_IO_PASSWORD} #optional else no authentication
+    maxRetries = ${ES_MAX_NUMBER_OF_RETRIES}
+    retry_delay_factor = ${ES_DELAY_FACTOR_IN_SECONDS}
     connectionTimeout = ${CONNECTION_TIMEOUT} #optional else default value 
     socketTimeout = ${SOCKET_TIMEOUT} #optional else default value
     connectionRequestTimeout = ${CONNECTION_REQUEST_TIMEOUT} #optional else default value
