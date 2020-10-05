@@ -37,7 +37,7 @@ trait EsSimpleClientBase extends StrictLogging {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   private val esClient: RestHighLevelClient = EsHighLevelClient.client
-  private val maxRetries: Int = EsHighLevelConfig.maxRetries
+  private[elasticsearch] val maxRetries: Int = EsHighLevelConfig.maxRetries
   private val retryDelay: Int = EsHighLevelConfig.retryDelayFactor
 
   /**
@@ -313,35 +313,24 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param docIndex index to query
     * @return result of connectivity check
     */
-  def connectivityCheck(docIndex: String = "foo", retry: Int = 0): Future[DeepCheckResponse] =
+  def connectivityCheck(docIndex: String = "foo"): Future[DeepCheckResponse] =
 
     getDocs(docIndex = docIndex, size = Some(1))
       .map(_ => DeepCheckResponse())
-      .recoverWith {
-        case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
-          if (retry < maxRetries) {
-            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; will try again #${retry + 1}", ex)
-            FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
-              connectivityCheck(docIndex, retry + 1)
-            }.flatMap(future => future)
-          } else {
-            logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed,  no (more) retries ($retry/$maxRetries)  ", ex)
-            Future.successful(DeepCheckResponse(
-              status = false,
-              messages = Seq(ex.getMessage)
-            ))
-          }
-
-        case ex: Throwable =>
-          logger.error(s"ES error connectivyCheck(): deepcheck failing index=$docIndex failed; won't try again, due to unknown error type", ex)
-          Future.failed(ex)
+      .recover {
+        case ex =>
+          logger.error(s"ES error connectivyCheck() failed; retries already executed in getDocs(): deepcheck failing index=$docIndex", ex)
+          DeepCheckResponse(
+            status = false,
+            messages = Seq(ex.getMessage)
+          )
       }
 
 
   /**
     * Helper method to create an actionListnener.
     */
-  private def createActionListener[T](promise: Promise[T]): ActionListener[T] = {
+  private[elasticsearch] def createActionListener[T](promise: Promise[T]): ActionListener[T] = {
 
     new ActionListener[T] {
 

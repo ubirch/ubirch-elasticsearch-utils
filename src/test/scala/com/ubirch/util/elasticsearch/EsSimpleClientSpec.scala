@@ -56,8 +56,9 @@ class EsSimpleClientSpec extends AsyncFeatureSpec with EsMappingTrait
     }
 
     scenario("failed get") {
-      val f = Await.result(EsSimpleClient.getDoc(docIndex, UUIDUtil.uuidStr), 5 seconds)
-      f.isDefined shouldBe false
+      EsSimpleClient.getDoc(docIndex, UUIDUtil.uuidStr).map {
+        _.isDefined shouldBe false
+      }
     }
 
     scenario("store and get") {
@@ -163,7 +164,6 @@ class EsSimpleClientSpec extends AsyncFeatureSpec with EsMappingTrait
 
     scenario("delete") {
       val jval = Json4sUtil.any2jvalue(testDoc).get
-
       EsSimpleClient.storeDoc(
         docIndex = docIndex,
         docIdOpt = Some(testDoc.id),
