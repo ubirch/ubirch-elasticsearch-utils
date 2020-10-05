@@ -89,17 +89,17 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recoverWith {
     case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
-        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; will try again #${retry + 1}", ex)
+        logger.warn(s"ES error storeDoc() failed; will try again #${retry + 1}: index=$docIndex doc=$doc  id=$docIdOpt", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
           storeDoc(docIndex, doc, docIdOpt, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed, no (more) retries ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error storeDoc() failed; no (more) retries ($retry/$maxRetries): index=$docIndex doc=$doc  id=$docIdOpt", ex)
         Future.failed(ex)
       }
 
     case ex: Throwable =>
-      logger.error(s"ES error storeDoc(): index=$docIndex doc=$doc  id=$docIdOpt failed; won't try again, due to unknown error type", ex)
+      logger.error(s"ES error storeDoc() failed; won't try again, due to unknown error type: index=$docIndex doc=$doc  id=$docIdOpt", ex)
       Future.failed(ex)
   }
 
@@ -140,17 +140,17 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recoverWith {
     case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
-        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; will try again #${retry + 1}", ex)
+        logger.warn(s"Es error getDoc() failed; will try again #${retry + 1}: retrieving document with id $docId from index=$docIndex", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
           getDoc(docIndex, docId, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed,  no (more) retries ($retry/$maxRetries)  ", ex)
+        logger.error(s"Es error getDoc() failed; no (more) retries ($retry/$maxRetries): retrieving document with id $docId from index=$docIndex", ex)
         Future.failed(ex)
       }
 
     case ex: Throwable =>
-      logger.error(s"Es error getDoc(): retrieving document with id $docId from index=$docIndex failed; won't try again, due to unknown error type", ex)
+      logger.error(s"Es error getDoc() failed; won't try again, due to unknown error type: retrieving document with id $docId from index=$docIndex", ex)
       Future.failed(ex)
   }
 
@@ -197,17 +197,17 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recoverWith {
     case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
-        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; will try again #${retry + 1}", ex)
+        logger.warn(s"ES error getDocs() failed; will try again #${retry + 1}: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
           getDocs(docIndex, query, from, size, sort, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed,  no (more) retries ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error getDocs() failed; no (more) retries ($retry/$maxRetries): index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
         Future.failed(ex)
       }
 
     case ex: Throwable =>
-      logger.error(s"ES error getDocs(): index=$docIndex query=$query from=$from size=$size sort=$sort failed; won't try again, due to unknown error type", ex)
+      logger.error(s"ES error getDocs() failed; won't try again, due to unknown error type: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
       Future.failed(ex)
   }
 
@@ -253,17 +253,17 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recoverWith {
     case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
-        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; will try again #${retry + 1}", ex)
+        logger.warn(s"ES error getAverage() failed; will try again #${retry + 1}: index=$docIndex query=$query avgAgg=$avgAgg", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
           getAverage(docIndex, query, avgAgg, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed,  no (more) retries ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error getAverage() failed; no (more) retries ($retry/$maxRetries): index=$docIndex query=$query avgAgg=$avgAgg", ex)
         Future.failed(ex)
       }
 
     case ex: Throwable =>
-      logger.error(s"ES error getAverage(): index=$docIndex query=$query avgAgg=$avgAgg failed; won't try again, due to unknown error type ", ex)
+      logger.error(s"ES error getAverage() failed; won't try again, due to unknown error type: index=$docIndex query=$query avgAgg=$avgAgg", ex)
       Future.failed(ex)
   }
 
@@ -293,17 +293,17 @@ trait EsSimpleClientBase extends StrictLogging {
   }.recoverWith {
     case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
       if (retry < maxRetries) {
-        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; will try again #${retry + 1}", ex)
+        logger.warn(s"ES error deleteDoc() failed; will try again #${retry + 1}: index=$docIndex docId=$docId", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
           deleteDoc(docIndex, docId, retry + 1)
         }.flatMap(future => future)
       } else {
-        logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed,  no (more) retries ($retry/$maxRetries)  ", ex)
+        logger.error(s"ES error deleteDoc() failed; no (more) retries ($retry/$maxRetries): index=$docIndex docId=$docId", ex)
         Future.failed(ex)
       }
 
     case ex: Throwable =>
-      logger.error(s"ES error deleteDoc(): index=$docIndex docId=$docId failed; won't try again, due to unknown error type", ex)
+      logger.error(s"ES error deleteDoc() failed; won't try again, due to unknown error type: index=$docIndex docId=$docId", ex)
       Future.failed(ex)
   }
 
