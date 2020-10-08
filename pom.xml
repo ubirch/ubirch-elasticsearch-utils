@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2018 ubirch GmbH
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <groupId>com.ubirch.util</groupId>
+    <artifactId>ubirch-elasticsearch-utils_${scala.major.version}</artifactId>
+    <version>0.2.5</version>
+    <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <name>Ubirch Elasticsearch Utils [${project.version}]</name>
+    <description>Elasticsearch client using the High Level Java Client</description>
+    <url>https://ubirch.com/</url>
+
+    <scm>
+        <url>https://github.com/ubirch/ubirch-elasticsearch-utils</url>
+    </scm>
+
+    <organization>
+        <name>ubirch GmbH</name>
+        <url>https://ubirch.com/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Michael Merz</name>
+            <email>michael.merz@ubirch.com</email>
+            <organization>ubirch GmbH</organization>
+            <organizationUrl>https://ubirch.com/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Lotta Rüger</name>
+            <email>lotta.rueger@ubirch.com</email>
+            <organization>ubirch GmbH</organization>
+            <organizationUrl>https://ubirch.com/</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <build.number>${timestamp}-dev</build.number>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <encoding>UTF-8</encoding>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+
+        <scala.major.version>2.11</scala.major.version>
+        <scala.version>2.11.12</scala.version>
+        <scala.compat.version>2.11</scala.compat.version>
+        <scalatest.version>3.0.5</scalatest.version>
+
+        <ubirch-config.version>0.2.4</ubirch-config.version>
+        <ubirch-deep-check.version>0.4.1</ubirch-deep-check.version>
+        <ubirch-json.version>0.5.2</ubirch-json.version>
+        <ubirch-uuid.version>0.1.4</ubirch-uuid.version>
+        <elasticsearch.version>7.8.0</elasticsearch.version>
+        <monix.version>3.2.2</monix.version>
+        <json4s.version>3.6.0</json4s.version>
+        <scala-logging.version>3.9.0</scala-logging.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <logback.version>1.1.7</logback.version>
+
+        <!-- plugins -->
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-dependency-plugin.version>2.8</maven-dependency-plugin.version>
+        <scala-maven-plugin.version>3.3.2</scala-maven-plugin.version>
+        <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
+        <scoverage.plugin.version>1.4.0</scoverage.plugin.version>
+        <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
+        <!-- plugins -->
+
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.ubirch.util</groupId>
+            <artifactId>ubirch-config-utils_${scala.compat.version}</artifactId>
+            <version>${ubirch-config.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ubirch.util</groupId>
+            <artifactId>ubirch-deep-check-utils_${scala.compat.version}</artifactId>
+            <version>${ubirch-deep-check.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ubirch.util</groupId>
+            <artifactId>ubirch-json-utils_${scala.compat.version}</artifactId>
+            <version>${ubirch-json.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ubirch.util</groupId>
+            <artifactId>ubirch-uuid-utils_${scala.compat.version}</artifactId>
+            <version>${ubirch-uuid.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.monix</groupId>
+            <artifactId>monix-execution_${scala.compat.version}</artifactId>
+            <version>${monix.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-jackson_${scala.compat.version}</artifactId>
+            <version>${json4s.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-core_${scala.compat.version}</artifactId>
+            <version>${json4s.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-ext_${scala.compat.version}</artifactId>
+            <version>${json4s.version}</version>
+        </dependency>
+
+
+        <!-- Test -->
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.compat.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Logging -->
+
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.compat.version}</artifactId>
+            <version>${scala-logging.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <!-- Scala -->
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>ossrh-release</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>io.cloudrepo</id>
+            <url>https://ubirch.mycloudrepo.io/public/repositories/ubirch-utils-mvn</url>
+        </repository>
+    </repositories>
+
+
+    <distributionManagement>
+        <repository>
+            <id>io.cloudrepo</id>
+            <name>Ubirch Public Cloud Repo Repository</name>
+            <url>https://ubirch.mycloudrepo.io/repositories/ubirch-utils-mvn</url>
+        </repository>
+    </distributionManagement>
+
+
+    <build>
+        <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
+        <plugins>
+
+            <plugin>
+                <!-- see http://davidb.github.com/scala-maven-plugin -->
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <args>
+                                <arg>-deprecation</arg>
+                                <arg>-dependencyfile</arg>
+                                <arg>${project.build.directory}/.scala_dependencies</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- copy all dependencies into the target/lib dir for our docker image -->
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <overWriteReleases>false</overWriteReleases>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- disable surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <!-- enable scalatest -->
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>${scalatest-maven-plugin.version}</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>WDF TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scoverage</groupId>
+                <artifactId>scoverage-maven-plugin</artifactId>
+                <version>${scoverage.plugin.version}</version>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <!-- other parameters -->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.ubirch.Service</mainClass>
+                            <useUniqueVersions>false</useUniqueVersions>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
