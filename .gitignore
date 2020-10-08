@@ -1,5 +1,6 @@
 *.class
 *.log
+*.iml
 dump.rdb
 
 # sbt specific
