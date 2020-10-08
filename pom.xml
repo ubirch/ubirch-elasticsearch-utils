@@ -22,7 +22,7 @@
 
     <groupId>com.ubirch.util</groupId>
     <artifactId>ubirch-elasticsearch-utils_${scala.major.version}</artifactId>
-    <version>0.2.5</version>
+    <version>0.2.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -76,10 +76,10 @@
         <scala.compat.version>2.11</scala.compat.version>
         <scalatest.version>3.0.5</scalatest.version>
 
-        <ubirch-config.version>0.2.4</ubirch-config.version>
-        <ubirch-deep-check.version>0.4.1</ubirch-deep-check.version>
-        <ubirch-json.version>0.5.2</ubirch-json.version>
-        <ubirch-uuid.version>0.1.4</ubirch-uuid.version>
+        <ubirch-config.version>0.2.5-SNAPSHOT</ubirch-config.version>
+        <ubirch-deep-check.version>0.4.2-SNAPSHOT</ubirch-deep-check.version>
+        <ubirch-json.version>0.5.3-SNAPSHOT</ubirch-json.version>
+        <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
         <elasticsearch.version>7.8.0</elasticsearch.version>
         <monix.version>3.2.2</monix.version>
         <json4s.version>3.6.0</json4s.version>
@@ -217,7 +217,7 @@
         </repository>
         <repository>
             <id>io.cloudrepo</id>
-            <url>https://ubirch.mycloudrepo.io/public/repositories/ubirch-utils-mvn</url>
+            <url>https://ubirch.mycloudrepo.io/public/repositories/mvn-public</url>
         </repository>
     </repositories>
 
@@ -226,7 +226,7 @@
         <repository>
             <id>io.cloudrepo</id>
             <name>Ubirch Public Cloud Repo Repository</name>
-            <url>https://ubirch.mycloudrepo.io/repositories/ubirch-utils-mvn</url>
+            <url>https://ubirch.mycloudrepo.io/repositories/mvn-public</url>
         </repository>
     </distributionManagement>
 
