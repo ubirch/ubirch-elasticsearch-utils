@@ -216,7 +216,7 @@
             <url>https://oss.sonatype.org/content/repositories/releases</url>
         </repository>
         <repository>
-            <id>io.cloudrepo.public</id>
+            <id>ubirch.mvn</id>
             <url>https://ubirch.mycloudrepo.io/public/repositories/mvn-public</url>
         </repository>
     </repositories>
@@ -224,7 +224,7 @@
 
     <distributionManagement>
         <repository>
-            <id>io.cloudrepo</id>
+            <id>ubirch.mvn.publish</id>
             <name>Ubirch Public Cloud Repo Repository</name>
             <url>https://ubirch.mycloudrepo.io/repositories/mvn-public</url>
         </repository>
