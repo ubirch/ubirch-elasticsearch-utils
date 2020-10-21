@@ -81,6 +81,7 @@
         <ubirch-json.version>0.5.3-SNAPSHOT</ubirch-json.version>
         <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
         <elasticsearch.version>7.8.0</elasticsearch.version>
+        <elasticsearch-embedded.version>7.8.0.0</elasticsearch-embedded.version>
         <monix.version>3.2.2</monix.version>
         <json4s.version>3.6.0</json4s.version>
         <scala-logging.version>3.9.0</scala-logging.version>
@@ -174,6 +175,13 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.compat.version}</artifactId>
             <version>${scalatest.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codelibs</groupId>
+            <artifactId>elasticsearch-cluster-runner</artifactId>
+            <version>${elasticsearch-embedded.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -295,6 +303,7 @@
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     <junitxml>.</junitxml>
                     <filereports>WDF TestSuite.txt</filereports>
+                    <parallel>false</parallel>
                 </configuration>
                 <executions>
                     <execution>

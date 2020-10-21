@@ -10,7 +10,7 @@ class ESConfigSpec extends FeatureSpec with Matchers {
 
       // verify
       EsHighLevelConfig.host shouldBe "localhost"
-      EsHighLevelConfig.port shouldBe 9200
+      EsHighLevelConfig.port shouldBe 9201
       EsHighLevelConfig.scheme shouldBe "http"
       EsHighLevelConfig.user shouldBe ""
       EsHighLevelConfig.password shouldBe ""
