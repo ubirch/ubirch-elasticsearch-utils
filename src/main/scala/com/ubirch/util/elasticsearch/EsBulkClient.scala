@@ -1,8 +1,5 @@
 package com.ubirch.util.elasticsearch
 
-import java.util.concurrent.TimeUnit
-import java.util.function.BiConsumer
-
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
 import com.ubirch.util.json.Json4sUtil
@@ -13,6 +10,9 @@ import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
 import org.elasticsearch.common.unit.{ByteSizeUnit, ByteSizeValue, TimeValue}
 import org.elasticsearch.common.xcontent.XContentType
 import org.json4s.JValue
+
+import java.util.concurrent.TimeUnit
+import java.util.function.BiConsumer
 
 object EsBulkClient extends EsBulkClientBase
 
@@ -58,7 +58,7 @@ trait EsBulkClientBase extends StrictLogging {
 
         @Override
         def onFailure(e: Exception): Unit = {
-          logger.error(s"after Bulk, second trial failed as well for request ($request)", e)
+          logger.error(s"afterBulk, second trial failed as well for request (${request.getDescription})", e)
         }
       })
     }

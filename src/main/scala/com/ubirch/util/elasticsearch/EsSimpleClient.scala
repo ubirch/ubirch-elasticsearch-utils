@@ -1,8 +1,5 @@
 package com.ubirch.util.elasticsearch
 
-import java.io.IOException
-import java.net.{ConnectException, SocketTimeoutException}
-
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.deepCheck.model.DeepCheckResponse
 import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
@@ -14,6 +11,7 @@ import org.elasticsearch.action.DocWriteResponse.Result
 import org.elasticsearch.action.delete.{DeleteRequest, DeleteResponse}
 import org.elasticsearch.action.index.{IndexRequest, IndexResponse}
 import org.elasticsearch.action.search.{SearchRequest, SearchResponse}
+import org.elasticsearch.action.support.WriteRequest
 import org.elasticsearch.action.{ActionListener, DocWriteResponse}
 import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
 import org.elasticsearch.common.xcontent.XContentType
@@ -23,6 +21,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.search.sort.SortBuilder
 import org.json4s.{Formats, JValue}
 
+import java.io.IOException
+import java.net.{ConnectException, SocketTimeoutException}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
@@ -50,16 +50,21 @@ trait EsSimpleClientBase extends StrictLogging {
   /**
     * This method stores a document to the index.
     *
-    * @param docIndex name of the index into which the current document should be stored
-    * @param docIdOpt unique id which identifies current document uniquely inside the index
-    * @param doc      document as a JValue which should be stored
+    * @param docIndex          name of the index into which the current document should be stored
+    * @param docIdOpt          unique id which identifies current document uniquely inside the index
+    * @param doc               document as a JValue which should be stored
+    * @param retry             defines how of the request has been repeated in case of an error
+    * @param waitingForRefresh defines, if the request has to wait until the index has become refreshed (default config
+    *                          mostly 1 second => prevents inconsistent data if the deleted doc is queried quickly after
+    *                          deletion)
     * @return Boolean indicating success
     */
   @throws[Throwable]
   def storeDoc(docIndex: String,
                doc: JValue,
                docIdOpt: Option[String] = None,
-               retry: Int = 0): Future[Boolean] = {
+               retry: Int = 0,
+               waitingForRefresh: Boolean = false): Future[Boolean] = {
 
     val docId = docIdOpt.getOrElse(UUIDUtil.uuidStr)
 
@@ -68,6 +73,7 @@ trait EsSimpleClientBase extends StrictLogging {
       case docStr if docStr.nonEmpty =>
 
         val request = new IndexRequest(docIndex).id(docId).source(docStr, XContentType.JSON)
+        if (waitingForRefresh) request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL)
 
         val promise = Promise[IndexResponse]()
 
@@ -91,7 +97,7 @@ trait EsSimpleClientBase extends StrictLogging {
       if (retry < maxRetries) {
         logger.warn(s"ES error storeDoc() failed; will try again #${retry + 1}: index=$docIndex doc=$doc  id=$docIdOpt", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
-          storeDoc(docIndex, doc, docIdOpt, retry + 1)
+          storeDoc(docIndex, doc, docIdOpt, retry + 1, waitingForRefresh)
         }.flatMap(future => future)
       } else {
         logger.error(s"ES error storeDoc() failed; no (more) retries ($retry/$maxRetries): index=$docIndex doc=$doc  id=$docIdOpt", ex)
@@ -109,6 +115,7 @@ trait EsSimpleClientBase extends StrictLogging {
     *
     * @param docIndex name of the ElasticSearch index
     * @param docId    unique Id per Document
+    * @param retry    defines how of the request has been repeated in case of an error
     */
   @throws[Throwable]
   def getDoc(docIndex: String,
@@ -163,6 +170,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param from     pagination from (may be 0 or larger)
     * @param size     maximum number of results (may be 0 or larger)
     * @param sort     optional result sort
+    * @param retry    defines how of the request has been repeated in case of an error
     * @return
     */
   @throws[Throwable]
@@ -218,6 +226,7 @@ trait EsSimpleClientBase extends StrictLogging {
     * @param docIndex name of the ElasticSearch index
     * @param query    search query
     * @param avgAgg   average function
+    * @param retry    defines how of the request has been repeated in case of an error
     * @return Option[Double]
     */
   @throws[Throwable]
@@ -270,14 +279,19 @@ trait EsSimpleClientBase extends StrictLogging {
   /**
     * This method removes a document by it's id from the index.
     *
-    * @param docIndex name of the index
-    * @param docId    unique id
+    * @param docIndex          name of the index
+    * @param docId             unique id
+    * @param retry             defines how of the request has been repeated in case of an error
+    * @param waitingForRefresh defines, if the request has to wait until the index has become refreshed (default config
+    *                          mostly 1 second => prevents inconsistent data if the deleted doc is queried quickly after
+    *                          deletion)
     * @return
     */
   @throws[Throwable]
-  def deleteDoc(docIndex: String, docId: String, retry: Int = 0): Future[Boolean] = {
+  def deleteDoc(docIndex: String, docId: String, retry: Int = 0, waitingForRefresh: Boolean = false): Future[Boolean] = {
 
     val request = new DeleteRequest(docIndex, docId)
+    if (waitingForRefresh) request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL)
 
     val promise = Promise[DeleteResponse]()
     esClient.deleteAsync(request, RequestOptions.DEFAULT, createActionListener[DeleteResponse](promise))
