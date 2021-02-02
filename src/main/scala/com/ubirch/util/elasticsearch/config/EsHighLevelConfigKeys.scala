@@ -20,6 +20,8 @@ object EsHighLevelConfigKeys {
   val CONNECTION_TIMEOUT = s"$connectionPrefix.connectionTimeout"
   val SOCKET_TIMEOUT = s"$connectionPrefix.socketTimeout"
   val CONNECTION_REQUEST_TIMEOUT = s"$connectionPrefix.connectionRequestTimeout"
+  val MAX_CONNECTION_PER_ROUTE = s"$connectionPrefix.maxConnectionPerRoute"
+  val MAX_CONNECTION_TOTAL = s"$connectionPrefix.maxConnectionTotal"
 
 
   /*

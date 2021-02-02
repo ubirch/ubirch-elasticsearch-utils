@@ -24,9 +24,11 @@ esHighLevelClient {
     password = ${ELASTIC_IO_PASSWORD} #optional else no authentication
     maxRetries = ${ES_MAX_NUMBER_OF_RETRIES}
     retry_delay_factor = ${ES_DELAY_FACTOR_IN_SECONDS}
-    connectionTimeout = ${CONNECTION_TIMEOUT} #optional else default value 
-    socketTimeout = ${SOCKET_TIMEOUT} #optional else default value
-    connectionRequestTimeout = ${CONNECTION_REQUEST_TIMEOUT} #optional else default value
+    connectionTimeout = ${ES_CONNECTION_TIMEOUT} #optional else default value 
+    socketTimeout = ${ES_SOCKET_TIMEOUT} #optional else default value
+    connectionRequestTimeout = ${ES_CONNECTION_REQUEST_TIMEOUT} #optional else default value
+    maxConnectionPerRoute = ${ES_MAX_CONNECTION_PER_ROUTE} #optional else default value = 10
+    maxConnectionTotal = ${ES_MAX_CONNECTION_TOTAL} #optional else default value = 30
   }
   bulk {
     bulkActions = ${ES_CLIENT_BULK_ACTIONS}
