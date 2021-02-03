@@ -18,6 +18,9 @@ trait EsHighLevelClient {
   private val connectionTimeout = EsHighLevelConfig.connectionTimeout
   private val socketTimeout = EsHighLevelConfig.socketTimeout
   private val connectionRequestTimeout = EsHighLevelConfig.connectionRequestTimeout
+  private val maxConnPerRoute = EsHighLevelConfig.maxConnectionPerRoute
+  private val maxConnTotal = EsHighLevelConfig.maxConnectionTotal
+
 
   private val credentialsProvider = new BasicCredentialsProvider()
   credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password))
@@ -34,9 +37,14 @@ trait EsHighLevelClient {
 
   if (user != "" && password != "")
     builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-      override def customizeHttpClient(httpClientBuilder: HttpAsyncClientBuilder): HttpAsyncClientBuilder = {
-        httpClientBuilder
+      override def customizeHttpClient(httpAsyncClientBuilder: HttpAsyncClientBuilder): HttpAsyncClientBuilder = {
+        httpAsyncClientBuilder
           .setDefaultCredentialsProvider(credentialsProvider)
+        if (maxConnPerRoute.isSuccess)
+          httpAsyncClientBuilder.setMaxConnPerRoute(maxConnPerRoute.get)
+        if (maxConnTotal.isSuccess)
+          httpAsyncClientBuilder.setMaxConnTotal(maxConnTotal.get)
+        httpAsyncClientBuilder
       }
     })
 

@@ -21,6 +21,8 @@ object EsHighLevelConfig extends ConfigBase {
   val connectionTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_TIMEOUT)).getOrElse(-1)
   val socketTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.SOCKET_TIMEOUT)).getOrElse(-1)
   val connectionRequestTimeout: Int = Try(config.getInt(EsHighLevelConfigKeys.CONNECTION_REQUEST_TIMEOUT)).getOrElse(-1)
+  val maxConnectionPerRoute: Try[Int] = Try(config.getInt(EsHighLevelConfigKeys.MAX_CONNECTION_PER_ROUTE))
+  val maxConnectionTotal: Try[Int] = Try(config.getInt(EsHighLevelConfigKeys.MAX_CONNECTION_TOTAL))
 
   /*
    * bulk
