@@ -21,7 +21,7 @@
 
 
     <groupId>com.ubirch.util</groupId>
-    <artifactId>ubirch-elasticsearch-utils_${scala.major.version}</artifactId>
+    <artifactId>ubirch-elasticsearch-utils_${scala.compat.version}</artifactId>
     <version>0.2.8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -71,9 +71,8 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
-        <scala.major.version>2.11</scala.major.version>
-        <scala.version>2.11.12</scala.version>
-        <scala.compat.version>2.11</scala.compat.version>
+        <scala.version>2.12.8</scala.version>
+        <scala.compat.version>2.12</scala.compat.version>
         <scalatest.version>3.0.5</scalatest.version>
 
         <ubirch-config.version>0.2.5-SNAPSHOT</ubirch-config.version>
@@ -85,8 +84,6 @@
         <monix.version>3.2.2</monix.version>
         <json4s.version>3.6.0</json4s.version>
         <scala-logging.version>3.9.0</scala-logging.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <logback.version>1.1.7</logback.version>
 
         <!-- plugins -->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -204,17 +201,6 @@
             <version>${scala-logging.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
         <!-- Scala -->
 
         <dependency>
