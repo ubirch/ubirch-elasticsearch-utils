@@ -23,6 +23,7 @@ import org.json4s.{Formats, JValue}
 
 import java.io.IOException
 import java.net.{ConnectException, SocketTimeoutException}
+import java.util.concurrent.TimeoutException
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
@@ -93,7 +94,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException) =>
       if (retry < maxRetries) {
         logger.warn(s"ES error storeDoc() failed; will try again #${retry + 1}: index=$docIndex doc=$doc  id=$docIdOpt", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -145,7 +146,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException) =>
       if (retry < maxRetries) {
         logger.warn(s"Es error getDoc() failed; will try again #${retry + 1}: retrieving document with id $docId from index=$docIndex", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -203,7 +204,7 @@ trait EsSimpleClientBase extends StrictLogging {
         List()
     }
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException) =>
       if (retry < maxRetries) {
         logger.warn(s"ES error getDocs() failed; will try again #${retry + 1}: index=$docIndex query=$query from=$from size=$size sort=$sort", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -260,7 +261,7 @@ trait EsSimpleClientBase extends StrictLogging {
         None
     }
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException) =>
       if (retry < maxRetries) {
         logger.warn(s"ES error getAverage() failed; will try again #${retry + 1}: index=$docIndex query=$query avgAgg=$avgAgg", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
@@ -305,7 +306,7 @@ trait EsSimpleClientBase extends StrictLogging {
 
     }
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException) =>
+    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException) =>
       if (retry < maxRetries) {
         logger.warn(s"ES error deleteDoc() failed; will try again #${retry + 1}: index=$docIndex docId=$docId", ex)
         FutureUtils.delayedResult((retry + 1) * retryDelay.seconds) {
