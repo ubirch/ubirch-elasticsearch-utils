@@ -1,32 +1,21 @@
 package com.ubirch.util.elasticsearch
 
-import java.io.IOException
-
-import com.typesafe.scalalogging.StrictLogging
-import com.ubirch.util.json.{Json4sUtil, JsonFormats}
+import com.ubirch.util.json.Json4sUtil
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.aggregations.AggregationBuilders
-import org.json4s.{Formats, JValue}
-import org.scalatest.{AsyncFeatureSpec, BeforeAndAfterAll, Matchers}
+import org.json4s.JValue
 
+import java.io.IOException
 import scala.concurrent.Promise
 
-class EsRetrySpec extends AsyncFeatureSpec
-  with Matchers
-  with BeforeAndAfterAll
-  with StrictLogging {
+class EsRetrySpec extends TestUtils {
 
-  implicit private val formats: Formats = JsonFormats.default
-
-  case class TestDoc(id: String, hello: String, value: Int)
-
-  private val docIndex = "test-index"
   private val testDoc = TestDoc("1", "World", 10)
   private val jValue: JValue = Json4sUtil.any2jvalue(testDoc).get
 
-  class MockIOExceptionEsSimpleClient(retries: Int) extends EsSimpleClientBase {
+  class MockIOExceptionEsSimpleClient(retries: Int, client: RestHighLevelClient) extends TestEsSimpleClient(client) {
     var counter = 0
     override val maxRetries: Int = retries
 
@@ -41,7 +30,7 @@ class EsRetrySpec extends AsyncFeatureSpec
     }
   }
 
-  class MockThrowableEsSimpleClient(retries: Int) extends EsSimpleClientBase {
+  class MockThrowableEsSimpleClient(retries: Int, client: RestHighLevelClient) extends TestEsSimpleClient(client) {
     var counter = 0
     override val maxRetries: Int = retries
 
@@ -59,9 +48,7 @@ class EsRetrySpec extends AsyncFeatureSpec
   feature("simple retry") {
 
     scenario("fail with no retry") {
-
-      val mockClient = new MockIOExceptionEsSimpleClient(0)
-
+      val mockClient = new MockIOExceptionEsSimpleClient(0, client)
       recoverToExceptionIf[IOException] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
       }.map { e =>
@@ -71,26 +58,20 @@ class EsRetrySpec extends AsyncFeatureSpec
     }
 
     scenario("fail with two retries") {
-
-      val mockClient = new MockIOExceptionEsSimpleClient(2)
-
+      val mockClient = new MockIOExceptionEsSimpleClient(2, client)
       recoverToExceptionIf[IOException] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
       }.map { ex =>
         ex.getMessage shouldBe "test exception handling"
         mockClient.counter shouldBe 3
       }
-
     }
-
   }
 
   feature("simple failure when unknown exception") {
 
     scenario("fail with no retry") {
-
-      val mockClient = new MockThrowableEsSimpleClient(0)
-
+      val mockClient = new MockThrowableEsSimpleClient(0, client)
       recoverToExceptionIf[Throwable] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
       }.map { e =>
@@ -100,9 +81,7 @@ class EsRetrySpec extends AsyncFeatureSpec
     }
 
     scenario("fail with no retry also though maxRetries > 0") {
-
-      val mockClient = new MockThrowableEsSimpleClient(2)
-
+      val mockClient = new MockThrowableEsSimpleClient(2, client)
       recoverToExceptionIf[Throwable] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
       }.map { ex =>
@@ -113,9 +92,9 @@ class EsRetrySpec extends AsyncFeatureSpec
   }
 
   feature("fail all remaining methods with one retry") {
-    val mockClient = new MockIOExceptionEsSimpleClient(1)
 
     scenario("getDoc") {
+      val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       recoverToExceptionIf[IOException] {
         mockClient.getDoc(docIndex, testDoc.id)
       }.map { ex =>
@@ -125,73 +104,45 @@ class EsRetrySpec extends AsyncFeatureSpec
     }
 
     scenario("getDocs") {
+      val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       val query = Some(QueryBuilders.termQuery("id", testDoc.id))
-
       recoverToExceptionIf[IOException] {
         mockClient.getDocs(docIndex, query = query)
       }.map { ex =>
         ex.getMessage shouldBe "test exception handling"
-        mockClient.counter shouldBe 4
+        mockClient.counter shouldBe 2
       }
     }
 
 
     scenario("getAverage() of existing field --> Some") {
-
+      val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       val aggregation = AggregationBuilders.avg("average").field("value")
-
       recoverToExceptionIf[IOException] {
         mockClient.getAverage(docIndex = docIndex, avgAgg = aggregation)
       }.map { ex =>
         ex.getMessage shouldBe "test exception handling"
-        mockClient.counter shouldBe 6
+        mockClient.counter shouldBe 2
       }
     }
 
     scenario("delete") {
+      val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       recoverToExceptionIf[IOException] {
         mockClient.deleteDoc(docIndex, testDoc.id)
       }.map { ex =>
         ex.getMessage shouldBe "test exception handling"
-        mockClient.counter shouldBe 8
+        mockClient.counter shouldBe 2
       }
     }
 
     scenario("connectivityCheck with existing index") {
-
+      val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       mockClient.connectivityCheck(docIndex).map { _ =>
-        mockClient.counter shouldBe 10
+        mockClient.counter shouldBe 2
       }
     }
   }
 
-  private var esMappingImpl: EsMappingImpl = _
-
-  implicit var esClient: RestHighLevelClient = _
-
-  class EsMappingImpl extends EsMappingTrait {
-    override val indexesAndMappings: Map[String, String] =
-      Map(docIndex ->
-        s"""{
-           |    "properties" : {
-           |      "id" : {
-           |        "type" : "keyword"
-           |      },
-           |      "hello" : {
-           |        "type" : "keyword"
-           |      },
-           |      "value" : {
-           |        "type" : "integer"
-           |      }
-           |    }
-           |}""".stripMargin)
-  }
-
-  override def beforeAll(): Unit = {
-    TestUtils.start()
-    esMappingImpl = new EsMappingImpl()
-    esMappingImpl.cleanElasticsearch()
-    esClient = EsSimpleClient.getCurrentEsClient
-  }
 
 }

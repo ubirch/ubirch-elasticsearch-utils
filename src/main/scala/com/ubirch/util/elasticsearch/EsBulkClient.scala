@@ -18,7 +18,7 @@ object EsBulkClient extends EsBulkClientBase
 
 trait EsBulkClientBase extends StrictLogging {
 
-  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
 
   /**
     * returns current ElasticSearch RestHighLevelClient instance

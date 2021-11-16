@@ -37,7 +37,7 @@ trait EsSimpleClientBase extends StrictLogging {
   implicit val formats: Formats = JsonFormats.default
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
   private[elasticsearch] val maxRetries: Int = EsHighLevelConfig.maxRetries
   private val retryDelay: Int = EsHighLevelConfig.retryDelayFactor
 

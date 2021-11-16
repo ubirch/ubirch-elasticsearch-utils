@@ -186,15 +186,24 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.dimafeng/testcontainers-scala-scalatest -->
         <dependency>
-            <groupId>org.codelibs</groupId>
-            <artifactId>elasticsearch-cluster-runner</artifactId>
-            <version>${elasticsearch-embedded.version}</version>
+            <groupId>com.dimafeng</groupId>
+            <artifactId>testcontainers-scala-scalatest_2.12</artifactId>
+            <version>0.39.11</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- Logging -->
+        <!-- https://mvnrepository.com/artifact/com.dimafeng/testcontainers-scala-elasticsearch -->
+        <dependency>
+            <groupId>com.dimafeng</groupId>
+            <artifactId>testcontainers-scala-elasticsearch_2.12</artifactId>
+            <version>0.39.11</version>
+            <scope>test</scope>
+        </dependency>
 
+
+        <!-- Logging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging_${scala.compat.version}</artifactId>

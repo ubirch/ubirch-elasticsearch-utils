@@ -35,7 +35,7 @@ trait EsMappingTrait extends StrictLogging {
     */
   val indexesAndMappings: Map[String, String]
 
-  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
 
   lazy final val indicesToDelete: Set[String] = indexesAndMappings.keys.toSet
 

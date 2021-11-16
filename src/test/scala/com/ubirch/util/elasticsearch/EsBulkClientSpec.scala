@@ -1,49 +1,10 @@
 package com.ubirch.util.elasticsearch
 
-import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.json.Json4sUtil
-import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.search.aggregations.AggregationBuilders
 import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder
-import org.scalatest.{AsyncFeatureSpec, BeforeAndAfterAll, Matchers}
 
-class EsBulkClientSpec extends AsyncFeatureSpec
-  with Matchers
-  with BeforeAndAfterAll
-  with StrictLogging {
-
-  val docIndex = "test-index"
-
-  val defaultDocType = "_doc"
-  var esMappingImpl: EsMappingImpl = _
-
-  implicit var client: RestHighLevelClient = _
-
-  class EsMappingImpl extends EsMappingTrait {
-    override val indexesAndMappings: Map[String, String] =
-      Map(docIndex ->
-        s"""{
-           |    "properties" : {
-           |      "id" : {
-           |        "type" : "keyword"
-           |      },
-           |      "hello" : {
-           |        "type" : "keyword"
-           |      },
-           |      "value" : {
-           |        "type" : "integer"
-           |      }
-           |    }
-           |}""".stripMargin)
-  }
-
-  override def beforeAll(): Unit = {
-    TestUtils.start()
-    esMappingImpl = new EsMappingImpl()
-    client = EsSimpleClient.getCurrentEsClient
-  }
-
-  case class TestDoc(id: String, hello: String, value: Int)
+class EsBulkClientSpec extends TestUtils {
 
   val listOfDocs: Seq[TestDoc] = Range(1, 1999).map { int => TestDoc(int.toString, "World", 1 * int) }
 
@@ -54,8 +15,7 @@ class EsBulkClientSpec extends AsyncFeatureSpec
       listOfDocs.foreach { testDoc =>
 
         val jval = Json4sUtil.any2jvalue(testDoc).get
-
-        EsBulkClient.storeDocBulk(
+        bulkClient.storeDocBulk(
           docIndex = docIndex,
           docId = testDoc.id,
           doc = jval)
@@ -67,7 +27,7 @@ class EsBulkClientSpec extends AsyncFeatureSpec
           .avg("average")
           .field("value")
 
-      EsSimpleClient.getAverage(
+      simpleClient.getAverage(
         docIndex = docIndex,
         avgAgg = aggregation
       ) map { result =>
@@ -76,5 +36,4 @@ class EsBulkClientSpec extends AsyncFeatureSpec
     }
 
   }
-
 }
