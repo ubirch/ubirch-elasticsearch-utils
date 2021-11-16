@@ -16,14 +16,14 @@ trait TestUtils
     with BeforeAndAfterAll
     with StrictLogging with ForAllTestContainer {
 
-  implicit val formats: Formats = JsonFormats.default
-  val docIndex = "test-index"
-  val defaultDocType = "_doc"
-  var port: Int = _
-  var esMappingImpl: TestEsMappingImpl = _
-  var simpleClient: TestEsSimpleClient = _
-  var bulkClient: TestEsBulkClient = _
-  var client: RestHighLevelClient = _
+  protected implicit val formats: Formats = JsonFormats.default
+  protected val docIndex = "test-index"
+  protected val defaultDocType = "_doc"
+  protected var port: Int = _
+  protected var esMappingImpl: TestEsMappingImpl = _
+  protected var simpleClient: TestEsSimpleClient = _
+  protected var bulkClient: TestEsBulkClient = _
+  protected var client: RestHighLevelClient = _
 
   class TestEsSimpleClient(client: RestHighLevelClient) extends EsSimpleClientBase {
     override val esClient: RestHighLevelClient = client
@@ -57,21 +57,16 @@ trait TestUtils
            |}""".stripMargin)
   }
 
-
   override val container: ElasticsearchContainer =
     ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.8.0"))
 
   override def beforeAll(): Unit = {
-    container.start()
-    port = container.httpHostAddress.drop(10).toInt
+    port = container.httpHostAddress.replaceAll("\\D+", "").toInt
     client = new TestEsHighLevelClient(port).esClient
     esMappingImpl = new TestEsMappingImpl(client)
     simpleClient = new TestEsSimpleClient(client)
     bulkClient = new TestEsBulkClient(client)
   }
 
-  override def afterAll(): Unit = {
-    container.stop()
-  }
 
 }
