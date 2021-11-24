@@ -63,10 +63,12 @@ class EsSimpleClientSpec extends TestUtils {
 
     scenario("update") {
       val jval = Json4sUtil.any2jvalue(testDoc2).get
-      Await.ready(simpleClient.storeDoc(
-        docIndex = docIndex,
-        docIdOpt = Some(testDoc2.id),
-        doc = jval), 2 seconds)
+      Await.ready(
+        simpleClient.storeDoc(
+          docIndex = docIndex,
+          docIdOpt = Some(testDoc2.id),
+          doc = jval),
+        2 seconds)
       Thread.sleep(1500)
 
       simpleClient.getDoc(docIndex, testDoc2.id).map {
@@ -79,10 +81,12 @@ class EsSimpleClientSpec extends TestUtils {
       }
 
       val jvalUpdate = Json4sUtil.any2jvalue(testDoc2Updated).get
-      Await.ready(simpleClient.storeDoc(
-        docIndex = docIndex,
-        docIdOpt = Some(testDoc2Updated.id),
-        doc = jvalUpdate), 2 seconds)
+      Await.ready(
+        simpleClient.storeDoc(
+          docIndex = docIndex,
+          docIdOpt = Some(testDoc2Updated.id),
+          doc = jvalUpdate),
+        2 seconds)
       Thread.sleep(1500)
 
       simpleClient.getDoc(docIndex, testDoc2Updated.id).map {
@@ -125,7 +129,6 @@ class EsSimpleClientSpec extends TestUtils {
         docIndex = docIndex,
         avgAgg = aggregation
       ) map { result =>
-
         result shouldBe Some(10d)
 
       }

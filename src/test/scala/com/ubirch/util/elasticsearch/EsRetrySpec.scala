@@ -114,7 +114,6 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-
     scenario("getAverage() of existing field --> Some") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       val aggregation = AggregationBuilders.avg("average").field("value")
@@ -143,6 +142,5 @@ class EsRetrySpec extends TestUtils {
       }
     }
   }
-
 
 }

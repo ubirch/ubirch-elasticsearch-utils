@@ -23,7 +23,6 @@ object EsHighLevelConfigKeys {
   val MAX_CONNECTION_PER_ROUTE = s"$connectionPrefix.maxConnectionPerRoute"
   val MAX_CONNECTION_TOTAL = s"$connectionPrefix.maxConnectionTotal"
 
-
   /*
    * bulk
    *****************************************************************************/

@@ -6,7 +6,6 @@ import scala.util.Try
 
 object EsHighLevelConfig extends ConfigBase {
 
-
   /*
    * connection
    *****************************************************************************/

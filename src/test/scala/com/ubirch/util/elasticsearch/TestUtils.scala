@@ -1,22 +1,23 @@
 package com.ubirch.util.elasticsearch
 
-import com.dimafeng.testcontainers.{ElasticsearchContainer, ForAllTestContainer}
+import com.dimafeng.testcontainers.{ ElasticsearchContainer, ForAllTestContainer }
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.json.JsonFormats
 import org.elasticsearch.client.RestHighLevelClient
 import org.json4s.Formats
-import org.scalatest.{AsyncFeatureSpec, BeforeAndAfterAll, Matchers}
+import org.scalatest.{ AsyncFeatureSpec, BeforeAndAfterAll, Matchers }
 import org.testcontainers.utility.DockerImageName
 
 case class TestDoc(id: String, hello: String, value: Int)
 
 trait TestUtils
   extends AsyncFeatureSpec
-    with Matchers
-    with BeforeAndAfterAll
-    with StrictLogging with ForAllTestContainer {
+  with Matchers
+  with BeforeAndAfterAll
+  with StrictLogging
+  with ForAllTestContainer {
 
-  protected implicit val formats: Formats = JsonFormats.default
+  implicit protected val formats: Formats = JsonFormats.default
   protected val docIndex = "test-index"
   protected val defaultDocType = "_doc"
   protected var port: Int = _
@@ -58,7 +59,7 @@ trait TestUtils
   }
 
   override val container: ElasticsearchContainer =
-    ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.8.0"))
+    ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.15.0"))
 
   override def beforeAll(): Unit = {
     port = container.httpHostAddress.replaceAll("\\D+", "").toInt
@@ -67,6 +68,5 @@ trait TestUtils
     simpleClient = new TestEsSimpleClient(client)
     bulkClient = new TestEsBulkClient(client)
   }
-
 
 }

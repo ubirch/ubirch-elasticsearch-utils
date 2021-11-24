@@ -22,7 +22,7 @@
 
     <groupId>com.ubirch.util</groupId>
     <artifactId>ubirch-elasticsearch-utils_${scala.compat.version}</artifactId>
-    <version>0.2.8-SNAPSHOT</version>
+    <version>0.2.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -71,19 +71,20 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
-        <scala.version>2.12.8</scala.version>
-        <scala.compat.version>2.12</scala.compat.version>
+        <scala.version>2.11.12</scala.version>
+        <scala.compat.version>2.11</scala.compat.version>
         <scalatest.version>3.0.5</scalatest.version>
 
         <ubirch-config.version>0.2.5-SNAPSHOT</ubirch-config.version>
         <ubirch-deep-check.version>0.4.2-SNAPSHOT</ubirch-deep-check.version>
         <ubirch-json.version>0.5.3-SNAPSHOT</ubirch-json.version>
         <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
-        <elasticsearch.version>7.8.0</elasticsearch.version>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
         <elasticsearch-embedded.version>7.8.0.0</elasticsearch-embedded.version>
         <monix.version>3.2.2</monix.version>
         <json4s.version>3.6.0</json4s.version>
         <scala-logging.version>3.9.0</scala-logging.version>
+        <slf4j.version>1.7.25</slf4j.version>
 
         <!-- plugins -->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -94,6 +95,7 @@
         <scoverage.plugin.version>1.4.0</scoverage.plugin.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+        <maven-scalafmt.version>1.0.1614576627.86a5663</maven-scalafmt.version>
         <!-- plugins -->
 
     </properties>
@@ -189,7 +191,7 @@
         <!-- https://mvnrepository.com/artifact/com.dimafeng/testcontainers-scala-scalatest -->
         <dependency>
             <groupId>com.dimafeng</groupId>
-            <artifactId>testcontainers-scala-scalatest_2.12</artifactId>
+            <artifactId>testcontainers-scala-scalatest_${scala.compat.version}</artifactId>
             <version>0.39.11</version>
             <scope>test</scope>
         </dependency>
@@ -197,7 +199,7 @@
         <!-- https://mvnrepository.com/artifact/com.dimafeng/testcontainers-scala-elasticsearch -->
         <dependency>
             <groupId>com.dimafeng</groupId>
-            <artifactId>testcontainers-scala-elasticsearch_2.12</artifactId>
+            <artifactId>testcontainers-scala-elasticsearch_${scala.compat.version}</artifactId>
             <version>0.39.11</version>
             <scope>test</scope>
         </dependency>
@@ -208,6 +210,31 @@
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging_${scala.compat.version}</artifactId>
             <version>${scala-logging.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api-scala -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api-scala_${scala.compat.version}</artifactId>
+            <version>12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- Scala -->
@@ -370,6 +397,33 @@
                     <skip>false</skip>
                 </configuration>
             </plugin>
+
+            <!-- code formatting -->
+            <plugin>
+                <groupId>org.antipathy</groupId>
+                <!-- The scala binary here doesn't need to match the project version -->
+                <artifactId>mvn-scalafmt_${scala.compat.version}</artifactId>
+                <!-- This represents the desired version of the plugin, whould be in the form:
+                     (major).(minor).(commitepoch).(commithash), which can be found here:
+                     https://github.com/simonjpegg/mvn_scalafmt/releases
+                     e.g. <version>1.0.1589620826.41b214a</version>
+                     Note: The SCALA version is OMITTED from this value
+                -->
+                <version>${maven-scalafmt.version}</version>
+                <configuration>
+                    <configLocation>https://raw.githubusercontent.com/ubirch/ubirch-scalafmt-rules/main/.scalafmt.conf
+                    </configLocation> <!-- path to config -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

@@ -13,7 +13,6 @@ class EsBulkClientSpec extends TestUtils {
     scenario("store 2000 documents and check if average is good") {
       esMappingImpl.cleanElasticsearch()
       listOfDocs.foreach { testDoc =>
-
         val jval = Json4sUtil.any2jvalue(testDoc).get
         bulkClient.storeDocBulk(
           docIndex = docIndex,
