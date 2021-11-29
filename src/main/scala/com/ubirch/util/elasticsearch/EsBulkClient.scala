@@ -4,11 +4,12 @@ import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
 import com.ubirch.util.json.Json4sUtil
 import org.elasticsearch.action.ActionListener
-import org.elasticsearch.action.bulk.{BackoffPolicy, BulkProcessor, BulkRequest, BulkResponse}
+import org.elasticsearch.action.bulk.{ BackoffPolicy, BulkProcessor, BulkRequest, BulkResponse }
 import org.elasticsearch.action.index.IndexRequest
-import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
-import org.elasticsearch.common.unit.{ByteSizeUnit, ByteSizeValue, TimeValue}
+import org.elasticsearch.client.{ RequestOptions, RestHighLevelClient }
+import org.elasticsearch.common.unit.{ ByteSizeUnit, ByteSizeValue }
 import org.elasticsearch.common.xcontent.XContentType
+import org.elasticsearch.core.TimeValue
 import org.json4s.JValue
 
 import java.util.concurrent.TimeUnit
@@ -18,7 +19,7 @@ object EsBulkClient extends EsBulkClientBase
 
 trait EsBulkClientBase extends StrictLogging {
 
-  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
 
   /**
     * returns current ElasticSearch RestHighLevelClient instance
@@ -32,35 +33,42 @@ trait EsBulkClientBase extends StrictLogging {
     */
   private val listener: BulkProcessor.Listener = new BulkProcessor.Listener() {
 
-
     @Override
     def beforeBulk(executionId: Long, request: BulkRequest): Unit = {
-      logger.debug(s"beforeBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()})")
+      logger.debug(
+        s"beforeBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()})")
     }
 
     @Override
     def afterBulk(executionId: Long, request: BulkRequest, response: BulkResponse): Unit = {
-      logger.debug(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}) => ${response.getTook}")
+      logger.debug(
+        s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}) => ${response.getTook}")
       if (response.hasFailures)
-        logger.error(s"afterBulk($executionId, some requests of the bulk request failed: ${response.buildFailureMessage}")
+        logger.error(
+          s"afterBulk($executionId, some requests of the bulk request failed: ${response.buildFailureMessage}")
     }
 
     @Override
     def afterBulk(executionId: Long, request: BulkRequest, failure: Throwable): Unit = {
-      logger.warn(s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}, trying it once more)", failure)
+      logger.warn(
+        s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}, trying it once more)",
+        failure)
 
-      bulkAsyncAsJava.accept(request, new ActionListener[BulkResponse]() {
+      bulkAsyncAsJava.accept(
+        request,
+        new ActionListener[BulkResponse]() {
 
-        @Override
-        def onResponse(response: BulkResponse): Unit = {
-          logger.info(s"afterBulk; second Trial worked out $response, but may have failures: ${response.hasFailures}")
+          @Override
+          def onResponse(response: BulkResponse): Unit = {
+            logger.info(s"afterBulk; second Trial worked out $response, but may have failures: ${response.hasFailures}")
+          }
+
+          @Override
+          def onFailure(e: Exception): Unit = {
+            logger.error(s"afterBulk, second trial failed as well for request (${request.getDescription})", e)
+          }
         }
-
-        @Override
-        def onFailure(e: Exception): Unit = {
-          logger.error(s"afterBulk, second trial failed as well for request (${request.getDescription})", e)
-        }
-      })
+      )
     }
 
   }
@@ -75,7 +83,7 @@ trait EsBulkClientBase extends StrictLogging {
   /**
     * Bulkprocessor with it's different configurations regarding the time of storage.
     */
-  private val bulkProcessor: BulkProcessor = BulkProcessor.builder(bulkAsyncAsJava, listener)
+  private val bulkProcessor: BulkProcessor = BulkProcessor.builder(bulkAsyncAsJava, listener, "bulk-processor")
     .setBulkActions(EsHighLevelConfig.bulkActions)
     .setBulkSize(new ByteSizeValue(EsHighLevelConfig.bulkSize, ByteSizeUnit.MB))
     .setFlushInterval(TimeValue.timeValueSeconds(EsHighLevelConfig.flushInterval))
@@ -92,10 +100,7 @@ trait EsBulkClientBase extends StrictLogging {
     * @param docId    id of the new document
     * @param doc      document itself
     */
-  def storeDocBulk(docIndex: String,
-                   docId: String,
-                   doc: JValue
-                  ): Boolean = {
+  def storeDocBulk(docIndex: String, docId: String, doc: JValue): Boolean = {
     try {
       bulkProcessor.add(
         new IndexRequest(docIndex).id(docId)
@@ -115,6 +120,4 @@ trait EsBulkClientBase extends StrictLogging {
   }
 
   sys.addShutdownHook(closeConnection())
-
-
 }

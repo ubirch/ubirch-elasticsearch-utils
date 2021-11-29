@@ -3,8 +3,8 @@ package com.ubirch.util.elasticsearch
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest
-import org.elasticsearch.client.indices.{CreateIndexRequest, GetIndexRequest}
-import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
+import org.elasticsearch.client.indices.{ CreateIndexRequest, GetIndexRequest }
+import org.elasticsearch.client.{ RequestOptions, RestHighLevelClient }
 import org.elasticsearch.common.xcontent.XContentType
 import org.elasticsearch.rest.RestStatus
 
@@ -35,9 +35,9 @@ trait EsMappingTrait extends StrictLogging {
     */
   val indexesAndMappings: Map[String, String]
 
-  private val esClient: RestHighLevelClient = EsHighLevelClient.client
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
 
-  lazy final val indicesToDelete: Set[String] = indexesAndMappings.keys.toSet
+  final lazy val indicesToDelete: Set[String] = indexesAndMappings.keys.toSet
 
   /**
     * Method to create all indexes and their mappings if not yet existing.
@@ -123,5 +123,8 @@ trait EsMappingTrait extends StrictLogging {
     }
   }
 
+  def closeConnection(): Unit = {
+    esClient.close()
+  }
 
 }

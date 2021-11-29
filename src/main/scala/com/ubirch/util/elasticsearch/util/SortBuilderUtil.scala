@@ -1,6 +1,6 @@
 package com.ubirch.util.elasticsearch.util
 
-import org.elasticsearch.search.sort.{FieldSortBuilder, SortBuilder, SortBuilders, SortOrder}
+import org.elasticsearch.search.sort.{ FieldSortBuilder, SortBuilder, SortBuilders, SortOrder }
 
 object SortBuilderUtil {
 

@@ -2,16 +2,20 @@ package com.ubirch.util.elasticsearch
 
 import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
 import org.apache.http.HttpHost
-import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
+import org.apache.http.auth.{ AuthScope, UsernamePasswordCredentials }
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
-import org.elasticsearch.client.{RestClient, RestClientBuilder, RestHighLevelClient}
+import org.elasticsearch.client.{ RestClient, RestClientBuilder, RestHighLevelClient }
 
+/**
+  * We recommend not to create multiple instances of this trait as it will create multiple connections
+  * to the elasticsearch though it should be a singleton.
+  */
 trait EsHighLevelClient {
 
   private val host = EsHighLevelConfig.host
-  private val port = EsHighLevelConfig.port
+  private[elasticsearch] lazy val port = EsHighLevelConfig.port
   private val scheme = EsHighLevelConfig.scheme
   private val user = EsHighLevelConfig.user
   private val password = EsHighLevelConfig.password
@@ -20,7 +24,6 @@ trait EsHighLevelClient {
   private val connectionRequestTimeout = EsHighLevelConfig.connectionRequestTimeout
   private val maxConnPerRoute = EsHighLevelConfig.maxConnectionPerRoute
   private val maxConnTotal = EsHighLevelConfig.maxConnectionTotal
-
 
   private val credentialsProvider = new BasicCredentialsProvider()
   credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password))

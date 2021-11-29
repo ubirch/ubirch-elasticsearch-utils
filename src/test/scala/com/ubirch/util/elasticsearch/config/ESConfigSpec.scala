@@ -1,6 +1,6 @@
 package com.ubirch.util.elasticsearch.config
 
-import org.scalatest.{FeatureSpec, Matchers}
+import org.scalatest.{ FeatureSpec, Matchers }
 
 class ESConfigSpec extends FeatureSpec with Matchers {
 
@@ -31,6 +31,5 @@ class ESConfigSpec extends FeatureSpec with Matchers {
       EsHighLevelConfig.concurrentRequests shouldBe 2
     }
   }
-
 
 }
