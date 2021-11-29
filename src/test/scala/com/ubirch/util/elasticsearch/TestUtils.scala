@@ -75,4 +75,10 @@ trait TestUtils
     bulkClient = new TestEsBulkClient(client)
   }
 
+  override def afterAll(): Unit = {
+    bulkClient.closeConnection()
+    simpleClient.closeConnection()
+    container.stop()
+    container.close()
+  }
 }
