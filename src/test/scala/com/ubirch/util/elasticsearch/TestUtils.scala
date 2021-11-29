@@ -68,7 +68,7 @@ trait TestUtils
     }
 
   override def beforeAll(): Unit = {
-    port = container.httpHostAddress.replaceAll("\\D+", "").toInt
+    port = container.httpHostAddress.split(":")(1).toInt
     client = new TestEsHighLevelClient(port).esClient
     esMappingImpl = new TestEsMappingImpl(client)
     simpleClient = new TestEsSimpleClient(client)
