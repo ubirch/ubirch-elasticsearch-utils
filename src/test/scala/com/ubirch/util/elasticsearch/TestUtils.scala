@@ -59,7 +59,13 @@ trait TestUtils
   }
 
   override val container: ElasticsearchContainer =
-    ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.15.0"))
+    ElasticsearchContainer(
+      DockerImageName
+        .parse("elastic/elasticsearch:7.15.0")
+        .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:7.15.0")
+    ).configure { c =>
+      c.withEnv("xpack.security.enabled", "false")
+    }
 
   override def beforeAll(): Unit = {
     port = container.httpHostAddress.replaceAll("\\D+", "").toInt

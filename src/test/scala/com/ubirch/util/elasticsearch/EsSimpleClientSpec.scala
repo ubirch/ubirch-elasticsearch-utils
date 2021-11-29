@@ -26,12 +26,14 @@ class EsSimpleClientSpec extends TestUtils {
     scenario("store") {
       val jval = Json4sUtil.any2jvalue(testDoc).get
 
-      simpleClient.storeDoc(
-        docIndex = docIndex,
-        docIdOpt = Some(testDoc.id),
-        doc = jval).map { success =>
-        success shouldBe true
-      }
+      simpleClient
+        .storeDoc(
+          docIndex = docIndex,
+          docIdOpt = Some(testDoc.id),
+          doc = jval
+        ).map { success =>
+          success shouldBe true
+        }
     }
 
     scenario("failed get") {
