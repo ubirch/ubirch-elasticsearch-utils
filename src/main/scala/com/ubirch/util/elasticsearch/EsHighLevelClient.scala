@@ -14,7 +14,7 @@ import org.elasticsearch.client.{ RestClient, RestClientBuilder, RestHighLevelCl
   */
 trait EsHighLevelClient {
 
-  private val host = EsHighLevelConfig.host
+  private[elasticsearch] lazy val host = EsHighLevelConfig.host
   private[elasticsearch] lazy val port = EsHighLevelConfig.port
   private val scheme = EsHighLevelConfig.scheme
   private val user = EsHighLevelConfig.user

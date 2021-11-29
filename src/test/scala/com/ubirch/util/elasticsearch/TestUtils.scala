@@ -21,6 +21,7 @@ trait TestUtils
   protected val docIndex = "test-index"
   protected val defaultDocType = "_doc"
   protected var port: Int = _
+  protected var host: String = _
   protected var esMappingImpl: TestEsMappingImpl = _
   protected var simpleClient: TestEsSimpleClient = _
   protected var bulkClient: TestEsBulkClient = _
@@ -34,8 +35,9 @@ trait TestUtils
     override val esClient: RestHighLevelClient = client
   }
 
-  class TestEsHighLevelClient(httpPort: Int) extends EsHighLevelClient {
+  class TestEsHighLevelClient(testHost: String, httpPort: Int) extends EsHighLevelClient {
     override lazy val port: Int = httpPort
+    override lazy val host: String = testHost
   }
 
   class TestEsMappingImpl(client: RestHighLevelClient) extends EsMappingTrait {
@@ -68,8 +70,10 @@ trait TestUtils
     }
 
   override def beforeAll(): Unit = {
-    port = container.httpHostAddress.split(":")(1).toInt
-    client = new TestEsHighLevelClient(port).esClient
+    val hostAndPort = container.httpHostAddress.split(":")
+    host = hostAndPort(0)
+    port = hostAndPort(1).toInt
+    client = new TestEsHighLevelClient(host, port).esClient
     esMappingImpl = new TestEsMappingImpl(client)
     simpleClient = new TestEsSimpleClient(client)
     bulkClient = new TestEsBulkClient(client)
