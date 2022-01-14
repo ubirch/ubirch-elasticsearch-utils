@@ -1,12 +1,13 @@
 package com.ubirch.util.elasticsearch.config
 
-import org.scalatest.{ FeatureSpec, Matchers }
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 
-class ESConfigSpec extends FeatureSpec with Matchers {
+class ESConfigSpec extends AnyFeatureSpec with Matchers {
 
-  feature("hosts()") {
+  Feature("hosts()") {
 
-    scenario("read list of hosts from config") {
+    Scenario("read list of hosts from config") {
 
       // verify
       EsHighLevelConfig.host shouldBe "localhost"
@@ -20,9 +21,9 @@ class ESConfigSpec extends FeatureSpec with Matchers {
     }
   }
 
-  feature("bulk()") {
+  Feature("bulk()") {
 
-    scenario("read bulk settings from config") {
+    Scenario("read bulk settings from config") {
 
       // verify
       EsHighLevelConfig.bulkActions shouldBe 10000

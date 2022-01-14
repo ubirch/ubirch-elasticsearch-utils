@@ -45,9 +45,9 @@ class EsRetrySpec extends TestUtils {
     }
   }
 
-  feature("simple retry") {
+  Feature("simple retry") {
 
-    scenario("fail with no retry") {
+    Scenario("fail with no retry") {
       val mockClient = new MockIOExceptionEsSimpleClient(0, client)
       recoverToExceptionIf[IOException] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
@@ -57,7 +57,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("fail with two retries") {
+    Scenario("fail with two retries") {
       val mockClient = new MockIOExceptionEsSimpleClient(2, client)
       recoverToExceptionIf[IOException] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
@@ -68,9 +68,9 @@ class EsRetrySpec extends TestUtils {
     }
   }
 
-  feature("simple failure when unknown exception") {
+  Feature("simple failure when unknown exception") {
 
-    scenario("fail with no retry") {
+    Scenario("fail with no retry") {
       val mockClient = new MockThrowableEsSimpleClient(0, client)
       recoverToExceptionIf[Throwable] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
@@ -80,7 +80,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("fail with no retry also though maxRetries > 0") {
+    Scenario("fail with no retry also though maxRetries > 0") {
       val mockClient = new MockThrowableEsSimpleClient(2, client)
       recoverToExceptionIf[Throwable] {
         mockClient.storeDoc(docIndex = docIndex, docIdOpt = Some(testDoc.id), doc = jValue)
@@ -91,9 +91,9 @@ class EsRetrySpec extends TestUtils {
     }
   }
 
-  feature("fail all remaining methods with one retry") {
+  Feature("fail all remaining methods with one retry") {
 
-    scenario("getDoc") {
+    Scenario("getDoc") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       recoverToExceptionIf[IOException] {
         mockClient.getDoc(docIndex, testDoc.id)
@@ -103,7 +103,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("getDocs") {
+    Scenario("getDocs") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       val query = Some(QueryBuilders.termQuery("id", testDoc.id))
       recoverToExceptionIf[IOException] {
@@ -114,7 +114,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("getAverage() of existing field --> Some") {
+    Scenario("getAverage() of existing field --> Some") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       val aggregation = AggregationBuilders.avg("average").field("value")
       recoverToExceptionIf[IOException] {
@@ -125,7 +125,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("delete") {
+    Scenario("delete") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       recoverToExceptionIf[IOException] {
         mockClient.deleteDoc(docIndex, testDoc.id)
@@ -135,7 +135,7 @@ class EsRetrySpec extends TestUtils {
       }
     }
 
-    scenario("connectivityCheck with existing index") {
+    Scenario("connectivityCheck with existing index") {
       val mockClient = new MockIOExceptionEsSimpleClient(1, client)
       mockClient.connectivityCheck(docIndex).map { _ =>
         mockClient.counter shouldBe 2

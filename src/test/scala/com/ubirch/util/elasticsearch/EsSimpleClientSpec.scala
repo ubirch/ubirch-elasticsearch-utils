@@ -21,9 +21,9 @@ class EsSimpleClientSpec extends TestUtils {
   private val testDoc2 = TestDoc("2", "Galaxy", 20)
   private val testDoc2Updated = TestDoc("2", "Galaxy-World", 10)
 
-  feature("simple CRUD tests") {
+  Feature("simple CRUD tests") {
 
-    scenario("store") {
+    Scenario("store") {
       val jval = Json4sUtil.any2jvalue(testDoc).get
 
       simpleClient
@@ -36,13 +36,13 @@ class EsSimpleClientSpec extends TestUtils {
         }
     }
 
-    scenario("failed get") {
+    Scenario("failed get") {
       simpleClient.getDoc(docIndex, UUIDUtil.uuidStr).map {
         _.isDefined shouldBe false
       }
     }
 
-    scenario("store and get") {
+    Scenario("store and get") {
       val jval = Json4sUtil.any2jvalue(testDoc).get
 
       simpleClient.storeDoc(
@@ -63,7 +63,7 @@ class EsSimpleClientSpec extends TestUtils {
       }
     }
 
-    scenario("update") {
+    Scenario("update") {
       val jval = Json4sUtil.any2jvalue(testDoc2).get
       Await.ready(
         simpleClient.storeDoc(
@@ -101,7 +101,7 @@ class EsSimpleClientSpec extends TestUtils {
       }
     }
 
-    scenario("getDocs with id") {
+    Scenario("getDocs with id") {
       Thread.sleep(1000)
 
       val query = Some(QueryBuilders.termQuery("id", testDoc2Updated.id))
@@ -112,7 +112,7 @@ class EsSimpleClientSpec extends TestUtils {
       }
     }
 
-    scenario("getDocs") {
+    Scenario("getDocs") {
       simpleClient.getDocs(docIndex).map {
         case jvals: List[JValue] =>
           jvals.size shouldBe 2
@@ -120,7 +120,7 @@ class EsSimpleClientSpec extends TestUtils {
       }
     }
 
-    scenario("getAverage() of existing field --> Some") {
+    Scenario("getAverage() of existing field --> Some") {
 
       val aggregation: AvgAggregationBuilder =
         AggregationBuilders
@@ -137,7 +137,7 @@ class EsSimpleClientSpec extends TestUtils {
 
     }
 
-    scenario("getAverage() of non-existing field --> None") {
+    Scenario("getAverage() of non-existing field --> None") {
 
       val aggregation: AvgAggregationBuilder =
         AggregationBuilders
@@ -153,7 +153,7 @@ class EsSimpleClientSpec extends TestUtils {
 
     }
 
-    scenario("delete") {
+    Scenario("delete") {
       val jval = Json4sUtil.any2jvalue(testDoc).get
       simpleClient.storeDoc(
         docIndex = docIndex,
