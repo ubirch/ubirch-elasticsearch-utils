@@ -22,7 +22,7 @@
 
     <groupId>com.ubirch.util</groupId>
     <artifactId>ubirch-elasticsearch-utils_${scala.compat.version}</artifactId>
-    <version>0.2.9-SNAPSHOT</version>
+    <version>0.2.9</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -75,10 +75,10 @@
         <scala.compat.version>2.13</scala.compat.version>
         <scalatest.version>3.2.10</scalatest.version>
 
-        <ubirch-config.version>0.2.5-SNAPSHOT</ubirch-config.version>
-        <ubirch-deep-check.version>0.4.2-SNAPSHOT</ubirch-deep-check.version>
-        <ubirch-json.version>0.5.3-SNAPSHOT</ubirch-json.version>
-        <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
+        <ubirch-config.version>0.2.5</ubirch-config.version>
+        <ubirch-deep-check.version>0.4.2</ubirch-deep-check.version>
+        <ubirch-json.version>0.5.3</ubirch-json.version>
+        <ubirch-uuid.version>0.1.5</ubirch-uuid.version>
         <elasticsearch.version>7.15.0</elasticsearch.version>
         <testcontainers-elasticsearch.version>0.39.12</testcontainers-elasticsearch.version>
         <testcontainers.version>0.39.12</testcontainers.version>
