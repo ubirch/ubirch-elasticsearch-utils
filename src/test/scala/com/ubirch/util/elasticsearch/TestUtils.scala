@@ -5,7 +5,9 @@ import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.json.JsonFormats
 import org.elasticsearch.client.RestHighLevelClient
 import org.json4s.Formats
-import org.scalatest.{ AsyncFeatureSpec, BeforeAndAfterAll, Matchers }
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AsyncFeatureSpec
+import org.scalatest.matchers.should.Matchers
 import org.testcontainers.utility.DockerImageName
 
 case class TestDoc(id: String, hello: String, value: Int)

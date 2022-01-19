@@ -8,9 +8,9 @@ class EsBulkClientSpec extends TestUtils {
 
   val listOfDocs: Seq[TestDoc] = Range(1, 1999).map { int => TestDoc(int.toString, "World", 1 * int) }
 
-  feature("simple CRUD tests") {
+  Feature("simple CRUD tests") {
 
-    scenario("store 2000 documents and check if average is good") {
+    Scenario("store 2000 documents and check if average is good") {
       esMappingImpl.cleanElasticsearch()
       listOfDocs.foreach { testDoc =>
         val jval = Json4sUtil.any2jvalue(testDoc).get
