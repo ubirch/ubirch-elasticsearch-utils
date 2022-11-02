@@ -14,12 +14,7 @@ import org.testcontainers.utility.DockerImageName
 
 case class TestDoc(id: String, hello: String, value: Int, created: DateTime = DateTime.now)
 
-trait TestUtils
-  extends AsyncFeatureSpec
-  with Matchers
-  with BeforeAndAfterAll
-  with StrictLogging
-  with ForAllTestContainer {
+trait TestUtils extends AsyncFeatureSpec with Matchers with BeforeAndAfterAll with StrictLogging {
 
   implicit protected val formats: Formats = JsonFormats.default
   protected val docIndex = "test-index"
@@ -55,19 +50,11 @@ trait TestUtils
       ))
   }
 
-  override val container: ElasticsearchContainer =
-    ElasticsearchContainer(
-      DockerImageName
-        .parse("elastic/elasticsearch:8.4.3")
-        .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:8.4.3")
-    ).configure { c =>
-      c.withEnv("xpack.security.enabled", "false")
-    }
-
   override def beforeAll(): Unit = {
-    val hostAndPort = container.httpHostAddress.split(":")
-    host = hostAndPort(0)
-    port = hostAndPort(1).toInt
+
+    val hostAndPort = EsDockerContainer.container.httpHostAddress.split(":")
+    val host = hostAndPort(0)
+    val port = hostAndPort(1).toInt
     client = new TestEsAsyncClient(host, port).esClient
     simpleClient = new TestEsSimpleClient(client)
     esMappingImpl = new TestEsMappingImpl(client)
@@ -77,7 +64,5 @@ trait TestUtils
   override def afterAll(): Unit = {
     bulkClient.closeConnection()
     simpleClient.closeConnection()
-    container.stop()
-    container.close()
   }
 }
