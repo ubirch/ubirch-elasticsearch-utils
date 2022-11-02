@@ -15,7 +15,7 @@ the number of executed retries to define the actual delay before a retry is star
  
 
 ```
-esHighLevelClient {
+elasticsearchUtil {
   connection {
     host = ${ES_HOST}
     port = ${ES_PORT}
