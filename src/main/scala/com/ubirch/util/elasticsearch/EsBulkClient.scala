@@ -2,17 +2,17 @@ package com.ubirch.util.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch._types.Refresh
-import co.elastic.clients.elasticsearch.core.bulk.{BulkOperation, IndexOperation}
-import co.elastic.clients.elasticsearch.core.{BulkRequest, BulkResponse}
+import co.elastic.clients.elasticsearch.core.bulk.{ BulkOperation, IndexOperation }
+import co.elastic.clients.elasticsearch.core.{ BulkRequest, BulkResponse }
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.typesafe.scalalogging.{Logger, StrictLogging}
+import com.typesafe.scalalogging.{ Logger, StrictLogging }
 import com.ubirch.util.elasticsearch.util.ResultUtil
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods.asJsonNode
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ Future, Promise }
 
 object EsBulkClient extends EsBulkClientBase
 
@@ -30,9 +30,9 @@ trait EsBulkClientBase extends StrictLogging {
   def getCurrentEsClient: ElasticsearchAsyncClient = esClient
 
   def storeDocBulk(
-                    docIndex: String,
-                    idsAndDocs: Map[String, JValue],
-                    waitingForRefresh: Boolean = false): Future[Unit] = {
+    docIndex: String,
+    idsAndDocs: Map[String, JValue],
+    waitingForRefresh: Boolean = false): Future[Unit] = {
 
     val p = Promise[Unit]()
     try {

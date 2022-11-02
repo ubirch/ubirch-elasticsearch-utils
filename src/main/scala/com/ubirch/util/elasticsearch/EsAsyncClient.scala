@@ -5,11 +5,11 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.ubirch.util.elasticsearch.config.EsAsyncClientConfig
 import org.apache.http.HttpHost
-import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
+import org.apache.http.auth.{ AuthScope, UsernamePasswordCredentials }
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
-import org.elasticsearch.client.{RestClient, RestClientBuilder}
+import org.elasticsearch.client.{ RestClient, RestClientBuilder }
 
 /**
   * We recommend not to create multiple instances of this trait as it will create multiple connections

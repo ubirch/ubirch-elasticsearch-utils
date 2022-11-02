@@ -1,25 +1,25 @@
 package com.ubirch.util.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
-import co.elastic.clients.elasticsearch._types.query_dsl.{MatchAllQuery, Query}
-import co.elastic.clients.elasticsearch._types.{Refresh, SortOptions}
+import co.elastic.clients.elasticsearch._types.query_dsl.{ MatchAllQuery, Query }
+import co.elastic.clients.elasticsearch._types.{ Refresh, SortOptions }
 import co.elastic.clients.elasticsearch.core._
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.typesafe.scalalogging.{Logger, StrictLogging}
+import com.typesafe.scalalogging.{ Logger, StrictLogging }
 import com.ubirch.util.deepCheck.model.DeepCheckResponse
 import com.ubirch.util.elasticsearch.config.EsAsyncClientConfig
-import com.ubirch.util.elasticsearch.util.{ESException, QueryUtil, ResultUtil}
-import com.ubirch.util.json.{Json4sUtil, JsonFormats}
+import com.ubirch.util.elasticsearch.util.{ ESException, QueryUtil, ResultUtil }
+import com.ubirch.util.json.{ Json4sUtil, JsonFormats }
 import com.ubirch.util.uuid.UUIDUtil
 import monix.execution.FutureUtils
 import monix.execution.Scheduler.Implicits.global
 import org.json4s.jackson.JsonMethods.fromJsonNode
-import org.json4s.{Formats, JValue}
+import org.json4s.{ Formats, JValue }
 
-import java.io.{IOException, StringReader}
-import java.net.{ConnectException, SocketTimeoutException}
+import java.io.{ IOException, StringReader }
+import java.net.{ ConnectException, SocketTimeoutException }
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future, Promise, TimeoutException}
+import scala.concurrent.{ ExecutionContext, Future, Promise, TimeoutException }
 import scala.jdk.CollectionConverters._
 
 object EsSimpleClient extends EsSimpleClientBase
@@ -50,11 +50,11 @@ trait EsSimpleClientBase extends StrictLogging {
     * @return Boolean indicating success
     */
   def storeDoc(
-                docIndex: String,
-                doc: JValue,
-                docIdOpt: Option[String] = None,
-                retry: Int = 0,
-                waitingForRefresh: Boolean = false): Future[Unit] = {
+    docIndex: String,
+    doc: JValue,
+    docIdOpt: Option[String] = None,
+    retry: Int = 0,
+    waitingForRefresh: Boolean = false): Future[Unit] = {
 
     val p = Promise[Unit]()
     try {
@@ -67,7 +67,7 @@ trait EsSimpleClientBase extends StrictLogging {
           esClient.index(request.build()).whenCompleteAsync { (rsp: IndexResponse, ex: Throwable) =>
             (rsp, ex) match {
               case (rsp, null) => r.handleSuccess(p, (), s"stored document with id $docId $doc and rsp ${rsp.result()}")
-              case (_, ex) => r.handleFailure(p, s"failed to store document $doc with ex ${ex.getMessage}", ex)
+              case (_, ex)     => r.handleFailure(p, s"failed to store document $doc with ex ${ex.getMessage}", ex)
             }
           }
         case _ => r.handleFailure(p, s"parsing JValue to string of ($doc) failed")
@@ -77,7 +77,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
     p.future
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
+    case ex @ (_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
       if (retry < maxRetries) {
         logger.error(
           s"ES error storeDoc() failed; will try again #${retry + 1}: index=$docIndex doc=$doc  id=$docIdOpt",
@@ -126,7 +126,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
     p.future
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
+    case ex @ (_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
       if (retry < maxRetries) {
         logger.warn(
           s"Es error getDoc() failed; will try again #${retry + 1}: retrieving document with id $docId from index=$docIndex",
@@ -160,12 +160,12 @@ trait EsSimpleClientBase extends StrictLogging {
     * @return
     */
   def getDocs(
-               docIndex: String,
-               query: Option[Query] = None,
-               from: Int = 0,
-               size: Int = 10,
-               sort: Seq[SortOptions] = Seq.empty,
-               retry: Int = 0): Future[Seq[JValue]] = {
+    docIndex: String,
+    query: Option[Query] = None,
+    from: Int = 0,
+    size: Int = 10,
+    sort: Seq[SortOptions] = Seq.empty,
+    retry: Int = 0): Future[Seq[JValue]] = {
 
     val p = Promise[Seq[JValue]]()
     try {
@@ -192,7 +192,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
     p.future
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
+    case ex @ (_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
       if (retry < maxRetries) {
         logger.warn(
           s"ES error getDocs() failed; will try again #${retry + 1}: index=$docIndex query=$query from=$from size=$size sort=$sort",
@@ -227,11 +227,11 @@ trait EsSimpleClientBase extends StrictLogging {
     * @return
     */
   def deleteDoc(
-                 docIndex: String,
-                 field: String,
-                 value: String,
-                 retry: Int = 0,
-                 waitingForRefresh: Boolean = false): Future[Unit] = {
+    docIndex: String,
+    field: String,
+    value: String,
+    retry: Int = 0,
+    waitingForRefresh: Boolean = false): Future[Unit] = {
 
     val p = Promise[Unit]()
     try {
@@ -254,7 +254,7 @@ trait EsSimpleClientBase extends StrictLogging {
     }
     p.future
   }.recoverWith {
-    case ex@(_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
+    case ex @ (_: IOException | _: ConnectException | _: SocketTimeoutException | _: TimeoutException | _: ESException) =>
       if (retry < maxRetries) {
         logger.warn(
           s"ES error deleteDoc() failed; will try again #${retry + 1}: index=$docIndex field=$field value=$value",

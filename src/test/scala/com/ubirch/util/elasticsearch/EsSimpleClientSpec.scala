@@ -1,6 +1,6 @@
 package com.ubirch.util.elasticsearch
 
-import com.ubirch.util.elasticsearch.util.{ESUtilExceptionV, QueryUtil, SortUtil}
+import com.ubirch.util.elasticsearch.util.{ ESUtilExceptionV, QueryUtil, SortUtil }
 import com.ubirch.util.json.Json4sUtil
 import com.ubirch.util.uuid.UUIDUtil
 import org.json4s._
@@ -29,7 +29,7 @@ class EsSimpleClientSpec extends TestUtils {
           docIdOpt = Some(testDoc.id),
           doc = jval
         ).map { success =>
-        success shouldBe()
+          success shouldBe ()
         }
     }
 
@@ -45,7 +45,7 @@ class EsSimpleClientSpec extends TestUtils {
         docIdOpt = Some(testDoc.id),
         doc = jval,
         waitingForRefresh = true).flatMap { success =>
-        success shouldBe()
+        success shouldBe ()
 
         simpleClient.getDoc(docIndex, testDoc.id).map {
           case Some(jval) =>

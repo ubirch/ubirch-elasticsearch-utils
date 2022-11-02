@@ -1,6 +1,6 @@
 package com.ubirch.util.elasticsearch.util
 
-import co.elastic.clients.elasticsearch._types.{FieldSort, SortOptions, SortOrder}
+import co.elastic.clients.elasticsearch._types.{ FieldSort, SortOptions, SortOrder }
 
 object SortUtil {
 

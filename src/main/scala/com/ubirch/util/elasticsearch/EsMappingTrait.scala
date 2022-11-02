@@ -1,7 +1,7 @@
 package com.ubirch.util.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
-import co.elastic.clients.elasticsearch._types.mapping.{Property, TypeMapping}
+import co.elastic.clients.elasticsearch._types.mapping.{ Property, TypeMapping }
 import co.elastic.clients.elasticsearch.indices.{
   CreateIndexRequest,
   CreateIndexResponse,
@@ -10,11 +10,11 @@ import co.elastic.clients.elasticsearch.indices.{
   ExistsRequest
 }
 import co.elastic.clients.transport.endpoints.BooleanResponse
-import com.typesafe.scalalogging.{Logger, StrictLogging}
+import com.typesafe.scalalogging.{ Logger, StrictLogging }
 import com.ubirch.util.elasticsearch.util.ResultUtil
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ Future, Promise }
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 trait EsMappingTrait extends StrictLogging {

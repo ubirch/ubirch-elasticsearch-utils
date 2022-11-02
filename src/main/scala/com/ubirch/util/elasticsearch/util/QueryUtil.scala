@@ -30,6 +30,11 @@ object QueryUtil {
     new Query.Builder().range(builder.build()).build()
   }
 
+  /**
+    * This method will create a query, that requires the acceptance of the combination of all queries handed
+    * over as parameter.
+    * @param queries a number of queries that shall be combined
+    */
   def buildBoolMustQuery(queries: Seq[Query]): Query = {
     val boolQuery = new BoolQuery.Builder().must(queries.asJava).build
     new Query.Builder().bool(boolQuery).build()

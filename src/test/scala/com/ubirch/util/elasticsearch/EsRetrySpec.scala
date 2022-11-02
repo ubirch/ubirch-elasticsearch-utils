@@ -2,7 +2,7 @@ package com.ubirch.util.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import com.typesafe.scalalogging.Logger
-import com.ubirch.util.elasticsearch.util.{ESUtilException, QueryUtil, ResultUtil}
+import com.ubirch.util.elasticsearch.util.{ ESUtilException, QueryUtil, ResultUtil }
 import com.ubirch.util.json.Json4sUtil
 import org.json4s.JValue
 
