@@ -65,5 +65,5 @@ trait EsAsyncClient {
 }
 
 object EsAsyncClient extends EsAsyncClient {
-  final val asyncClient = esClient
+  final val asyncClient: ElasticsearchAsyncClient = esClient
 }

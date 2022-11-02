@@ -13,8 +13,8 @@ class ESConfigSpec extends AnyFeatureSpec with Matchers {
       EsAsyncClientConfig.host shouldBe "localhost"
       EsAsyncClientConfig.port shouldBe 9201
       EsAsyncClientConfig.scheme shouldBe "http"
-      EsAsyncClientConfig.user shouldBe ""
-      EsAsyncClientConfig.password shouldBe ""
+      EsAsyncClientConfig.user shouldBe "elastic"
+      EsAsyncClientConfig.password shouldBe "changeMe"
       EsAsyncClientConfig.connectionTimeout shouldBe -1
       EsAsyncClientConfig.socketTimeout shouldBe -1
       EsAsyncClientConfig.connectionRequestTimeout shouldBe -1
