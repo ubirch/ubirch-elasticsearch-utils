@@ -6,8 +6,8 @@ import org.testcontainers.utility.DockerImageName
 object EsDockerContainer {
   val container: ElasticsearchContainer = ElasticsearchContainer(
     DockerImageName
-      .parse("elastic/elasticsearch:8.4.3")
-      .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:8.4.3")
+      .parse("elastic/elasticsearch:8.5.0")
+      .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:8.5.0")
   ).configure { c =>
     c.withEnv("xpack.security.enabled", "true")
     c.withEnv("ELASTIC_USERNAME", "elastic")
