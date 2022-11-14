@@ -4,7 +4,7 @@ import com.ubirch.util.config.ConfigBase
 
 import scala.util.Try
 
-object EsHighLevelConfig extends ConfigBase {
+object EsAsyncClientConfig extends ConfigBase {
 
   /*
    * connection
