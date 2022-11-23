@@ -10,14 +10,14 @@ class ESConfigSpec extends AnyFeatureSpec with Matchers {
     Scenario("read list of hosts from config") {
 
       // verify
-      EsAsyncClientConfig.host shouldBe "localhost"
-      EsAsyncClientConfig.port shouldBe 9201
-      EsAsyncClientConfig.scheme shouldBe "http"
-      EsAsyncClientConfig.user shouldBe "elastic"
-      EsAsyncClientConfig.password shouldBe "changeMe"
-      EsAsyncClientConfig.connectionTimeout shouldBe -1
-      EsAsyncClientConfig.socketTimeout shouldBe -1
-      EsAsyncClientConfig.connectionRequestTimeout shouldBe -1
+      EsHighLevelConfig.host shouldBe "localhost"
+      EsHighLevelConfig.port shouldBe 9201
+      EsHighLevelConfig.scheme shouldBe "http"
+      EsHighLevelConfig.user shouldBe ""
+      EsHighLevelConfig.password shouldBe ""
+      EsHighLevelConfig.connectionTimeout shouldBe -1
+      EsHighLevelConfig.socketTimeout shouldBe -1
+      EsHighLevelConfig.connectionRequestTimeout shouldBe -1
     }
   }
 
@@ -26,10 +26,10 @@ class ESConfigSpec extends AnyFeatureSpec with Matchers {
     Scenario("read bulk settings from config") {
 
       // verify
-      EsAsyncClientConfig.bulkActions shouldBe 10000
-      EsAsyncClientConfig.bulkSize shouldBe 1
-      EsAsyncClientConfig.flushInterval shouldBe 1
-      EsAsyncClientConfig.concurrentRequests shouldBe 2
+      EsHighLevelConfig.bulkActions shouldBe 10000
+      EsHighLevelConfig.bulkSize shouldBe 1
+      EsHighLevelConfig.flushInterval shouldBe 1
+      EsHighLevelConfig.concurrentRequests shouldBe 2
     }
   }
 

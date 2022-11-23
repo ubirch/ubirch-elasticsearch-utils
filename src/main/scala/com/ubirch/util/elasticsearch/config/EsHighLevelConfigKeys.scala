@@ -2,7 +2,7 @@ package com.ubirch.util.elasticsearch.config
 
 object EsHighLevelConfigKeys {
 
-  private val prefix = "elasticsearchUtil"
+  private val prefix = "esHighLevelClient"
 
   /*
    * connection
