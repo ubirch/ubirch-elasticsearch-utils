@@ -22,7 +22,7 @@
 
     <groupId>com.ubirch.util</groupId>
     <artifactId>ubirch-elasticsearch-utils_${scala.compat.version}</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.2.9</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -73,22 +73,22 @@
 
         <scala.version>2.13.6</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
-        <scalatest.version>3.2.14</scalatest.version>
+        <scalatest.version>3.2.10</scalatest.version>
 
         <ubirch-config.version>0.2.5</ubirch-config.version>
         <ubirch-deep-check.version>0.4.2</ubirch-deep-check.version>
         <ubirch-json.version>0.5.3</ubirch-json.version>
         <ubirch-uuid.version>0.1.5</ubirch-uuid.version>
-        <elasticsearch.version>8.5.0</elasticsearch.version>
-        <testcontainers-elasticsearch.version>0.40.11</testcontainers-elasticsearch.version>
-        <testcontainers.version>0.40.11</testcontainers.version>
-        <monix.version>3.4.1</monix.version>
-        <json4s.version>4.0.6</json4s.version>
-        <scala-logging.version>3.9.5</scala-logging.version>
-        <slf4j.version>2.0.3</slf4j.version>
-        <logback.version>1.4.4</logback.version>
-        <logstash-logback.version>7.2</logstash-logback.version>
-        <log4j-to-slf4j.version>2.19.0</log4j-to-slf4j.version>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
+        <testcontainers-elasticsearch.version>0.39.12</testcontainers-elasticsearch.version>
+        <testcontainers.version>0.39.12</testcontainers.version>
+        <monix.version>3.4.0</monix.version>
+        <json4s.version>4.0.3</json4s.version>
+        <scala-logging.version>3.9.4</scala-logging.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.10</logback.version>
+        <logstash-logback.version>7.0.1</logstash-logback.version>
+        <log4j-to-slf4j.version>2.17.1</log4j-to-slf4j.version>
 
         <!-- plugins -->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -131,9 +131,31 @@
         </dependency>
 
         <dependency>
-            <groupId>co.elastic.clients</groupId>
-            <artifactId>elasticsearch-java</artifactId>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
             <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${elasticsearch.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore-nio</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -146,13 +168,6 @@
             <groupId>org.json4s</groupId>
             <artifactId>json4s-jackson_${scala.compat.version}</artifactId>
             <version>${json4s.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version>
         </dependency>
 
         <dependency>

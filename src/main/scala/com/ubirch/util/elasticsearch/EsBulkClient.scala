@@ -1,70 +1,122 @@
 package com.ubirch.util.elasticsearch
 
-import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
-import co.elastic.clients.elasticsearch._types.Refresh
-import co.elastic.clients.elasticsearch.core.bulk.{ BulkOperation, IndexOperation }
-import co.elastic.clients.elasticsearch.core.{ BulkRequest, BulkResponse }
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.typesafe.scalalogging.{ Logger, StrictLogging }
-import com.ubirch.util.elasticsearch.util.ResultUtil
+import com.typesafe.scalalogging.StrictLogging
+import com.ubirch.util.elasticsearch.config.EsHighLevelConfig
+import com.ubirch.util.json.Json4sUtil
+import org.elasticsearch.action.ActionListener
+import org.elasticsearch.action.bulk.{ BackoffPolicy, BulkProcessor, BulkRequest, BulkResponse }
+import org.elasticsearch.action.index.IndexRequest
+import org.elasticsearch.client.{ RequestOptions, RestHighLevelClient }
+import org.elasticsearch.common.unit.{ ByteSizeUnit, ByteSizeValue }
+import org.elasticsearch.common.xcontent.XContentType
+import org.elasticsearch.core.TimeValue
 import org.json4s.JValue
-import org.json4s.jackson.JsonMethods.asJsonNode
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-
-import scala.concurrent.{ Future, Promise }
+import java.util.concurrent.TimeUnit
+import java.util.function.BiConsumer
 
 object EsBulkClient extends EsBulkClientBase
 
 trait EsBulkClientBase extends StrictLogging {
 
-  private[elasticsearch] val esClient: ElasticsearchAsyncClient = EsAsyncClient.asyncClient
-  implicit val log: Logger = logger
-  private[elasticsearch] val r = new ResultUtil()
+  private[elasticsearch] val esClient: RestHighLevelClient = EsHighLevelClient.client
 
   /**
     * returns current ElasticSearch RestHighLevelClient instance
     *
     * @return esClient as RestHighLevelClient
     */
-  def getCurrentEsClient: ElasticsearchAsyncClient = esClient
+  def getCurrentEsClient: RestHighLevelClient = esClient
 
-  def storeDocBulk(
-    docIndex: String,
-    idsAndDocs: Map[String, JValue],
-    waitingForRefresh: Boolean = false): Future[Unit] = {
+  /**
+    * A listener to react after or before the collected bulk of documents is written to the elasticsearch.
+    */
+  private val listener: BulkProcessor.Listener = new BulkProcessor.Listener() {
 
-    val p = Promise[Unit]()
-    try {
-      val br = new BulkRequest.Builder()
-      idsAndDocs.map {
-        case (id, doc) =>
-          val indexOp =
-            new IndexOperation.Builder[ObjectNode]().index(docIndex).id(id).document(asJsonNode(doc).deepCopy()).build()
-          val bulkOp = new BulkOperation.Builder().index(indexOp).build()
-          br.operations(bulkOp)
-      }
-      if (waitingForRefresh) br.refresh(Refresh.WaitFor)
-
-      esClient.bulk(br.build()).whenCompleteAsync { (rsp: BulkResponse, ex: Throwable) =>
-        (rsp, ex) match {
-          case (_, ex) if ex != null =>
-            r.handleFailure(p, s"storeDocBulk failed to insert bulk of ${idsAndDocs.size} docs", ex)
-          case (rsp, _) if rsp.errors() =>
-            val errors = rsp.items().asScala.map(_.error()).mkString("; ")
-            r.handleFailure(p, s"storeDocBulk failed with errors $errors to insert ${idsAndDocs.size} docs.")
-          case (rsp, _) =>
-            r.handleSuccess(p, (), s"storeDocBulk succeeded to insert ${idsAndDocs.size} docs; took ${rsp.took()} ms.")
-        }
-      }
-    } catch {
-      case ex: Throwable => r.handleFailure(p, s"deleteDoc failed due to unexpected error, ${ex.getMessage}", ex)
+    @Override
+    def beforeBulk(executionId: Long, request: BulkRequest): Unit = {
+      logger.debug(
+        s"beforeBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()})")
     }
-    p.future
+
+    @Override
+    def afterBulk(executionId: Long, request: BulkRequest, response: BulkResponse): Unit = {
+      logger.debug(
+        s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}) => ${response.getTook}")
+      if (response.hasFailures)
+        logger.error(
+          s"afterBulk($executionId, some requests of the bulk request failed: ${response.buildFailureMessage}")
+    }
+
+    @Override
+    def afterBulk(executionId: Long, request: BulkRequest, failure: Throwable): Unit = {
+      logger.warn(
+        s"afterBulk($executionId, number of actions: #${request.numberOfActions()}, ${request.estimatedSizeInBytes()}, trying it once more)",
+        failure)
+
+      bulkAsyncAsJava.accept(
+        request,
+        new ActionListener[BulkResponse]() {
+
+          @Override
+          def onResponse(response: BulkResponse): Unit = {
+            logger.info(s"afterBulk; second Trial worked out $response, but may have failures: ${response.hasFailures}")
+          }
+
+          @Override
+          def onFailure(e: Exception): Unit = {
+            logger.error(s"afterBulk, second trial failed as well for request (${request.getDescription})", e)
+          }
+        }
+      )
+    }
+
+  }
+
+  private val bulkAsyncAsJava: BiConsumer[BulkRequest, ActionListener[BulkResponse]] =
+    new BiConsumer[BulkRequest, ActionListener[BulkResponse]] {
+      override def accept(bulkRequest: BulkRequest, actionListener: ActionListener[BulkResponse]): Unit = {
+        esClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, actionListener)
+      }
+    }
+
+  /**
+    * Bulkprocessor with it's different configurations regarding the time of storage.
+    */
+  private val bulkProcessor: BulkProcessor = BulkProcessor.builder(bulkAsyncAsJava, listener, "bulk-processor")
+    .setBulkActions(EsHighLevelConfig.bulkActions)
+    .setBulkSize(new ByteSizeValue(EsHighLevelConfig.bulkSize, ByteSizeUnit.MB))
+    .setFlushInterval(TimeValue.timeValueSeconds(EsHighLevelConfig.flushInterval))
+    .setConcurrentRequests(EsHighLevelConfig.concurrentRequests)
+    .setBackoffPolicy(
+      BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(50), 10))
+    .build()
+
+  /**
+    * Method that stores a document to the bulkprocessor that by it's configuration
+    * stores all received documents after a certain amount or time to the elasticsearch.
+    *
+    * @param docIndex index to store the document to
+    * @param docId    id of the new document
+    * @param doc      document itself
+    */
+  def storeDocBulk(docIndex: String, docId: String, doc: JValue): Boolean = {
+    try {
+      bulkProcessor.add(
+        new IndexRequest(docIndex).id(docId)
+          .source(Json4sUtil.jvalue2String(doc), XContentType.JSON)
+      )
+      true
+    } catch {
+      case ex: Throwable =>
+        logger.debug(s"ES error - storeDocBulk(): docIndex=$docIndex docId=$docId doc=$doc ", ex)
+        false
+    }
   }
 
   def closeConnection(): Unit = {
-    esClient.shutdown()
+    bulkProcessor.close()
+    bulkProcessor.awaitClose(30L, TimeUnit.SECONDS)
   }
 
   sys.addShutdownHook(closeConnection())
